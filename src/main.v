@@ -116,7 +116,8 @@ module m_main(
     clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .locked(w_locked));
 `else
     wire mig_clk, RST_X2, ref_clk;
-    clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .clk_out2(ref_clk), .locked(w_locked));
+    //clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .clk_out2(ref_clk), .clk_out3(), .locked(w_locked));
+    clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
 `endif
 
     // Reset
@@ -233,9 +234,9 @@ module m_main(
         .w_led          (w_led_t),
         .w_init_stage   (w_init_stage),
         .w_checksum     (w_checksum),
-        .w_debug_btnd   (w_btnd),
-        .w_baud         (w_sw[15:14]),
-        .w_init_start   (w_init_start)
+        .w_debug_btnd   (w_btnd)
+        //.w_baud         (w_sw[15:14]),
+        //.w_init_start   (w_init_start)
     );
 
     m_RVCoreM p(

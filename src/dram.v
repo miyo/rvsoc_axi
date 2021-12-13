@@ -215,7 +215,8 @@ module DRAM_con_witout_cache #(
     wire  [3:0] mask_t = ~data_mask;
     wire [15:0] mask_t2 = mask_t << {dout_afifo1_addr[3:2], 2'b0};
 `endif
-    DRAMController #(
+
+    DRAMController_AXI #(
 `ifndef ARTYA7
                      .DDR2_DQ_WIDTH(DDR2_DQ_WIDTH),
                      .DDR2_DQS_WIDTH(DDR2_DQS_WIDTH),
@@ -295,6 +296,88 @@ module DRAM_con_witout_cache #(
 `else
         .i_mask(~mask_t2));
 `endif
+
+//     DRAMController #(
+// `ifndef ARTYA7
+//                      .DDR2_DQ_WIDTH(DDR2_DQ_WIDTH),
+//                      .DDR2_DQS_WIDTH(DDR2_DQS_WIDTH),
+//                      .DDR2_ADDR_WIDTH(DDR2_ADDR_WIDTH),
+//                      .DDR2_BA_WIDTH(DDR2_BA_WIDTH),
+//                      .DDR2_DM_WIDTH(DDR2_DM_WIDTH),
+// `else
+//                      .DDR3_DQ_WIDTH(DDR3_DQ_WIDTH),
+//                      .DDR3_DQS_WIDTH(DDR3_DQS_WIDTH),
+//                      .DDR3_ADDR_WIDTH(DDR3_ADDR_WIDTH),
+//                      .DDR3_BA_WIDTH(DDR3_BA_WIDTH),
+//                      .DDR3_DM_WIDTH(DDR3_DM_WIDTH),
+// `endif
+//                      .APP_ADDR_WIDTH(APP_ADDR_WIDTH),
+//                      .APP_CMD_WIDTH(APP_CMD_WIDTH),
+//                      .APP_DATA_WIDTH(APP_DATA_WIDTH),
+//                      .APP_MASK_WIDTH(APP_MASK_WIDTH))
+//     dc (
+//         // input clk, rst (active-low)
+//         .sys_clk(mig_clk),
+//         .sys_rst_x(mig_rst_x),
+// `ifdef ARTYA7
+//         .ref_clk(ref_clk),
+// `endif
+//         // memory interface ports
+// `ifndef ARTYA7
+//         .ddr2_dq(ddr2_dq),
+//         .ddr2_dqs_n(ddr2_dqs_n),
+//         .ddr2_dqs_p(ddr2_dqs_p),
+//         .ddr2_addr(ddr2_addr),
+//         .ddr2_ba(ddr2_ba),
+//         .ddr2_ras_n(ddr2_ras_n),
+//         .ddr2_cas_n(ddr2_cas_n),
+//         .ddr2_we_n(ddr2_we_n),
+//         .ddr2_ck_p(ddr2_ck_p),
+//         .ddr2_ck_n(ddr2_ck_n),
+//         .ddr2_cke(ddr2_cke),
+//         .ddr2_cs_n(ddr2_cs_n),
+//         .ddr2_dm(ddr2_dm),
+//         .ddr2_odt(ddr2_odt),
+// `else
+//         .ddr3_dq(ddr3_dq),
+//         .ddr3_dqs_n(ddr3_dqs_n),
+//         .ddr3_dqs_p(ddr3_dqs_p),
+//         .ddr3_addr(ddr3_addr),
+//         .ddr3_ba(ddr3_ba),
+//         .ddr3_ras_n(ddr3_ras_n),
+//         .ddr3_cas_n(ddr3_cas_n),
+//         .ddr3_we_n(ddr3_we_n),
+//         .ddr3_ck_p(ddr3_ck_p),
+//         .ddr3_ck_n(ddr3_ck_n),
+//         .ddr3_reset_n(ddr3_reset_n),
+//         .ddr3_cke(ddr3_cke),
+//         .ddr3_cs_n(ddr3_cs_n),
+//         .ddr3_dm(ddr3_dm),
+//         .ddr3_odt(ddr3_odt),
+// `endif
+//         // output clk, rst (active-low)
+//         .o_clk(mig_ui_clk),
+//         .o_rst_x(mig_ui_rst_x),
+//         // user interface ports
+//         .i_rd_en(dram_ren),
+//         .i_wr_en(dram_wen),
+// `ifndef ARTYA7
+//         .i_addr({1'b0, dram_addr}),
+// `else
+//         .i_addr(dram_addr),
+// `endif
+//         .i_data(dram_din),
+//         .o_init_calib_complete(dram_init_calib_complete),
+//         .o_data(dram_dout),
+//         .o_data_valid(dram_dout_valid),
+//         .o_ready(dram_ready),
+//         .o_wdf_ready(dram_wdf_ready),
+// `ifndef ARTYA7
+//         .i_mask(data_mask));
+// `else
+//         .i_mask(~mask_t2));
+// `endif
+
 
     // state machine
     always @(negedge clk) begin
@@ -405,19 +488,19 @@ module DRAMController #(
      output wire                         o_clk,
      output wire                         o_rst_x,
      // user interface ports
-     input  wire                         i_rd_en,
-     input  wire                         i_wr_en,
-     input  wire [APP_ADDR_WIDTH-1 : 0]  i_addr,
-     input  wire [APP_DATA_WIDTH-1 : 0]  i_data,
-     output wire                         o_init_calib_complete,
-     output wire [APP_DATA_WIDTH-1 : 0]  o_data,
-     output wire                         o_data_valid,
-     output wire                         o_ready,
-     output wire                         o_wdf_ready,
+     (* mark_debug *) input  wire                         i_rd_en,
+     (* mark_debug *) input  wire                         i_wr_en,
+     (* mark_debug *) input  wire [APP_ADDR_WIDTH-1 : 0]  i_addr,
+     (* mark_debug *) input  wire [APP_DATA_WIDTH-1 : 0]  i_data,
+     (* mark_debug *) output wire                         o_init_calib_complete,
+     (* mark_debug *) output wire [APP_DATA_WIDTH-1 : 0]  o_data,
+     (* mark_debug *) output wire                         o_data_valid,
+     (* mark_debug *) output wire                         o_ready,
+     (* mark_debug *) output wire                         o_wdf_ready,
 `ifndef ARTYA7
      input  wire [3:0]                   i_mask);
 `else
-     input  wire [APP_MASK_WIDTH-1 : 0]  i_mask);
+     (* mark_debug *) input  wire [APP_MASK_WIDTH-1 : 0]  i_mask);
 `endif
 
     localparam STATE_CALIB           = 3'b000;
