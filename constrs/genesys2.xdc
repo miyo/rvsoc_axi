@@ -15,6 +15,14 @@ set_property -dict { PACKAGE_PIN W24   IOSTANDARD LVCMOS33 } [get_ports { w_led1
 
 set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets m_clkgen0/inst/clk_in1_clk_wiz_0]
 
+create_generated_clock -name mig_in_clk [get_pins m_clkgen0/inst/mmcm_adv_inst/CLKOUT0]
+set_clock_groups -asynchronous -group {mig_in_clk}
+
+#create_generated_clock -name core_clk [get_pins mem_ctrl/dram_con/dram/dram/dram_con_witout_cache/clkgen1/inst/mmcm_adv_inst/CLKOUT0]
+create_generated_clock -name core_clk [get_pins c/dram_con/dram/dram/dram_con_witout_cache/clkgen1/inst/mmcm_adv_inst/CLKOUT0]
+set_clock_groups -asynchronous -group {core_clk}
+
+
 #### This file is a general .xdc for the Genesys 2 Rev. H
 #### To use it in a project:
 #### - uncomment the lines corresponding to used pins

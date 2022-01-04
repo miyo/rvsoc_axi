@@ -284,11 +284,11 @@
       <Strategy Version="1" Minor="2">
         <StratHandle Name="Flow_PerfThresholdCarry" Flow="Vivado Synthesis 2019"/>
         <Step Id="synth_design">
-          <Option Id="MoreOptsStr"><![CDATA[-verilog_define ARTYA7=1 -verilog_define GENESYS2=1]]></Option>
           <Option Id="KeepEquivalentRegisters">1</Option>
+          <Option Id="MoreOptsStr"><![CDATA[-verilog_define ARTYA7=1 -verilog_define GENESYS2=1]]></Option>
           <Option Id="NoCombineLuts">1</Option>
-          <Option Id="Directive">6</Option>
           <Option Id="ResourceSharing">2</Option>
+          <Option Id="Directive">6</Option>
         </Step>
       </Strategy>
       <GeneratedRun Dir="$PRUNDIR" File="gen_run.xml"/>

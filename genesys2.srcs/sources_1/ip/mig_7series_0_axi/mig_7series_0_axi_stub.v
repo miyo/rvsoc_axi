@@ -1,7 +1,7 @@
 // Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2019.2 (lin64) Build 2700185 Thu Oct 24 18:45:48 MDT 2019
-// Date        : Tue Jan  4 09:59:18 2022
+// Date        : Tue Jan  4 11:08:33 2022
 // Host        : pumpkin running 64-bit Ubuntu 20.04.3 LTS
 // Command     : write_verilog -force -mode synth_stub
 //               /home/miyo/work/rvsoc_src_ver053_axi/genesys2.srcs/sources_1/ip/mig_7series_0_axi/mig_7series_0_axi_stub.v
