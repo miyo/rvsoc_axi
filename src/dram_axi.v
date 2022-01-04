@@ -73,7 +73,7 @@ module DRAMController_AXI #(
     output wire         ddr3_reset_n,
     output wire         ddr3_cke,
     output wire         ddr3_cs_n,
-    output wire  [1:0]  ddr3_dm,
+    output wire  [3:0]  ddr3_dm,
     output wire         ddr3_odt,
 `endif
 `endif

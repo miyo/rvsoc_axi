@@ -13,6 +13,8 @@ set_property -dict { PACKAGE_PIN V20   IOSTANDARD LVCMOS33 } [get_ports { w_led1
 set_property -dict { PACKAGE_PIN V26   IOSTANDARD LVCMOS33 } [get_ports { w_led1_G }]; #IO_L16P_T2_CSI_B_14 Sch=led[5]
 set_property -dict { PACKAGE_PIN W24   IOSTANDARD LVCMOS33 } [get_ports { w_led1_R }]; #IO_L20N_T3_A07_D23_14 Sch=led[6]
 
+set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets m_clkgen0/inst/clk_in1_clk_wiz_0]
+
 #### This file is a general .xdc for the Genesys 2 Rev. H
 #### To use it in a project:
 #### - uncomment the lines corresponding to used pins
