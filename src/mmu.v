@@ -47,6 +47,7 @@ module m_mmu(
     output wire  [1:0]  ddr2_dm,
     output wire         ddr2_odt,
 `else
+`ifndef GENESYS2
     input  wire         ref_clk,
     inout  wire [15:0]  ddr3_dq,
     inout  wire  [1:0]  ddr3_dqs_n,
@@ -63,6 +64,24 @@ module m_mmu(
     output wire         ddr3_cs_n,
     output wire  [1:0]  ddr3_dm,
     output wire         ddr3_odt,
+`else
+    input  wire         ref_clk,
+    inout  wire [31:0]  ddr3_dq,
+    inout  wire  [3:0]  ddr3_dqs_n,
+    inout  wire  [3:0]  ddr3_dqs_p,
+    output wire [14:0]  ddr3_addr,
+    output wire  [2:0]  ddr3_ba,
+    output wire         ddr3_ras_n,
+    output wire         ddr3_cas_n,
+    output wire         ddr3_we_n,
+    output wire         ddr3_ck_p,
+    output wire         ddr3_ck_n,
+    output wire         ddr3_reset_n,
+    output wire         ddr3_cke,
+    output wire         ddr3_cs_n,
+    output wire  [1:0]  ddr3_dm,
+    output wire         ddr3_odt,
+`endif
 `endif
     output wire         o_clk,
     output wire         o_rst_x,

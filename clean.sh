@@ -1,6 +1,11 @@
 #!/bin/sh
 
-rm -rf nexys4.cache nexys4.hw nexys4.ip_user_files nexys4.runs nexys4.sim
-rm -rf arty35t.cache arty35t.hw arty35t.ip_user_files arty35t.runs arty35t.sim
-rm -rf arty100t.cache arty100t.hw arty100t.ip_user_files arty100t.runs arty100t.sim
+for i in nexsys4 arty35t arty100t genesys2
+do
+  rm -rf $i.cache
+  rm -rf $i.hw nexys4.ip_user_files nexys4.runs nexys4.sim
+  rm -rf $i.ip_user_files
+  rm -rf $i.runs
+  rm -rf $i.sim
+done
 rm -f slurm-*.out

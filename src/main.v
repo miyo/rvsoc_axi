@@ -8,7 +8,12 @@
 
 /**************************************************************************************************/
 module m_main(
+`ifndef GENESYS2
               input  wire        CLK,
+`else
+              input  wire        CLK_P,
+              input  wire        CLK_N,
+`endif
               input  wire        w_rxd,
               output wire        w_txd,
 `ifndef ARTYA7
@@ -39,6 +44,7 @@ module m_main(
               output wire  [1:0] ddr2_dm,    //
               output wire        ddr2_odt    //
 `else
+`ifndef GENESYS2
               inout  wire [15:0] ddr3_dq,    ///// for DRAM
               inout  wire  [1:0] ddr3_dqs_n, //
               inout  wire  [1:0] ddr3_dqs_p, //
@@ -54,6 +60,23 @@ module m_main(
               output wire  [0:0] ddr3_cs_n,  //
               output wire  [1:0] ddr3_dm,    //
               output wire  [0:0] ddr3_odt    //
+`else
+              inout  wire [31:0] ddr3_dq,    ///// for DRAM
+              inout  wire  [3:0] ddr3_dqs_n, //
+              inout  wire  [3:0] ddr3_dqs_p, //
+              output wire [14:0] ddr3_addr,  //
+              output wire  [2:0] ddr3_ba,    //
+              output wire        ddr3_ras_n, //
+              output wire        ddr3_cas_n, //
+              output wire        ddr3_we_n,  //
+              output wire  [0:0] ddr3_ck_p,  // 
+              output wire  [0:0] ddr3_ck_n,  //
+              output wire        ddr3_reset_n, //
+              output wire  [0:0] ddr3_cke,   //
+              output wire  [0:0] ddr3_cs_n,  //
+              output wire  [1:0] ddr3_dm,    //
+              output wire  [0:0] ddr3_odt    //
+`endif
 `endif
               );
 
@@ -116,8 +139,13 @@ module m_main(
     clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .locked(w_locked));
 `else
     wire mig_clk, RST_X2, ref_clk;
+    `ifndef GENESYS2
     //clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .clk_out2(ref_clk), .clk_out3(), .locked(w_locked));
     clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
+    `else
+    clk_wiz_0 m_clkgen0 (.clk_in1_n(CLK_N), .clk_in1_p(CLK_P),
+                         .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
+    `endif
 `endif
 
     // Reset
@@ -278,7 +306,11 @@ module m_main(
     reg  [12:0] r_cnt_B=0, r_cnt_G=64, r_cnt_R=512;
     reg  [11:0] r_ctrl_cnt = 0;
     reg   [3:0] r_blite_cnt = 0;
+`ifndef GENESYS2
     always@(posedge CLK) begin
+`else
+    always@(posedge ref_clk) begin
+`endif
         r_ctrl_cnt <= r_ctrl_cnt + 1;
         r_blite_cnt <= r_blite_cnt + 1;
         if(r_ctrl_cnt == 0) begin
