@@ -1,27 +1,28 @@
-set_property -dict { PACKAGE_PIN Y23   IOSTANDARD LVCMOS33 } [get_ports { w_txd }]; #IO_L1P_T0_12 Sch=uart_rx_out
-set_property -dict { PACKAGE_PIN Y20   IOSTANDARD LVCMOS33 } [get_ports { w_rxd }]; #IO_0_12 Sch=uart_tx_in
+set_property -dict {PACKAGE_PIN Y23 IOSTANDARD LVCMOS33} [get_ports w_txd]
+set_property -dict {PACKAGE_PIN Y20 IOSTANDARD LVCMOS33} [get_ports w_rxd]
 
-set_property -dict { PACKAGE_PIN AD11  IOSTANDARD LVDS     } [get_ports { CLK_N }]; #IO_L12N_T1_MRCC_33 Sch=sysclk_n
-set_property -dict { PACKAGE_PIN AD12  IOSTANDARD LVDS     } [get_ports { CLK_P }]; #IO_L12P_T1_MRCC_33 Sch=sysclk_p
+set_property -dict {PACKAGE_PIN AD11 IOSTANDARD LVDS} [get_ports CLK_N]
+set_property -dict {PACKAGE_PIN AD12 IOSTANDARD LVDS} [get_ports CLK_P]
+create_clock -period 5.000 -name clk_p_pin -add [get_ports CLK_P]
 
-set_property -dict { PACKAGE_PIN T28   IOSTANDARD LVCMOS33 } [get_ports { w_ledx[0] }]; #IO_L11N_T1_SRCC_14 Sch=led[0]
-set_property -dict { PACKAGE_PIN V19   IOSTANDARD LVCMOS33 } [get_ports { w_ledx[1] }]; #IO_L19P_T3_A10_D26_14 Sch=led[1]
-set_property -dict { PACKAGE_PIN U30   IOSTANDARD LVCMOS33 } [get_ports { w_ledx[2] }]; #IO_L15N_T2_DQS_DOUT_CSO_B_14 Sch=led[2]
-set_property -dict { PACKAGE_PIN U29   IOSTANDARD LVCMOS33 } [get_ports { w_ledx[3] }]; #IO_L15P_T2_DQS_RDWR_B_14 Sch=led[3]
+set_property -dict {PACKAGE_PIN T28 IOSTANDARD LVCMOS33} [get_ports {w_ledx[0]}]
+set_property -dict {PACKAGE_PIN V19 IOSTANDARD LVCMOS33} [get_ports {w_ledx[1]}]
+set_property -dict {PACKAGE_PIN U30 IOSTANDARD LVCMOS33} [get_ports {w_ledx[2]}]
+set_property -dict {PACKAGE_PIN U29 IOSTANDARD LVCMOS33} [get_ports {w_ledx[3]}]
 
-set_property -dict { PACKAGE_PIN V20   IOSTANDARD LVCMOS33 } [get_ports { w_led1_B }]; #IO_L19N_T3_A09_D25_VREF_14 Sch=led[4]
-set_property -dict { PACKAGE_PIN V26   IOSTANDARD LVCMOS33 } [get_ports { w_led1_G }]; #IO_L16P_T2_CSI_B_14 Sch=led[5]
-set_property -dict { PACKAGE_PIN W24   IOSTANDARD LVCMOS33 } [get_ports { w_led1_R }]; #IO_L20N_T3_A07_D23_14 Sch=led[6]
+set_property -dict {PACKAGE_PIN V20 IOSTANDARD LVCMOS33} [get_ports w_led1_B]
+set_property -dict {PACKAGE_PIN V26 IOSTANDARD LVCMOS33} [get_ports w_led1_G]
+set_property -dict {PACKAGE_PIN W24 IOSTANDARD LVCMOS33} [get_ports w_led1_R]
 
 set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets m_clkgen0/inst/clk_in1_clk_wiz_0]
 
-create_generated_clock -name mig_in_clk [get_pins m_clkgen0/inst/mmcm_adv_inst/CLKOUT0]
-set_clock_groups -asynchronous -group {mig_in_clk}
+create_clock -period 9.615 -name core_clk_net -add [get_nets CORE_CLK]
+create_clock -period 9.615 -name mmu_clk_net -add [get_nets c/CLK]
 
-#create_generated_clock -name core_clk [get_pins mem_ctrl/dram_con/dram/dram/dram_con_witout_cache/clkgen1/inst/mmcm_adv_inst/CLKOUT0]
-create_generated_clock -name core_clk [get_pins c/dram_con/dram/dram/dram_con_witout_cache/clkgen1/inst/mmcm_adv_inst/CLKOUT0]
-set_clock_groups -asynchronous -group {core_clk}
+#set_false_path -from [get_clocks core_clk_net] -to [get_clocks -of_objects [get_pins c/dram_con/dram/dram/dram_con_witout_cache/dc/u_mig_7series_0_axi/u_mig_7series_0_axi_mig/u_ddr3_infrastructure/gen_mmcm.mmcm_i/CLKFBOUT]]
+#set_false_path -from [get_clocks -of_objects [get_pins c/dram_con/dram/dram/dram_con_witout_cache/dc/u_mig_7series_0_axi/u_mig_7series_0_axi_mig/u_ddr3_infrastructure/gen_mmcm.mmcm_i/CLKFBOUT]] -to [get_clocks core_clk_net]
 
+set_property -dict { PACKAGE_PIN V27   IOSTANDARD LVCMOS33 } [get_ports { core_clk_div2_out }]; #IO_L16N_T2_A15_D31_14 Sch=jd[1]
 
 #### This file is a general .xdc for the Genesys 2 Rev. H
 #### To use it in a project:
@@ -459,4 +460,5 @@ set_clock_groups -asynchronous -group {core_clk}
 #set_property -dict { PACKAGE_PIN AB14  IOSTANDARD LVCMOS18 } [get_ports { USB_OTG_RESETB }]; #IO_25_VRP_32 Sch=usb_otg_resetb
 #set_property -dict { PACKAGE_PIN AA17  IOSTANDARD LVCMOS18 } [get_ports { USB_OTG_STP }]; #IO_L23P_T3_32 Sch=usb_otg_stp
 #set_property -dict { PACKAGE_PIN AF16  IOSTANDARD LVCMOS18 } [get_ports { USB_OTG_VBUSOC }]; #IO_L6N_T0_VREF_32 Sch=usb_otg_vbusoc
+
 

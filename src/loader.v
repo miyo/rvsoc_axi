@@ -21,17 +21,17 @@
 /**************************************************************************************************/
 module PLOADER (CLK, RST_X, RXD, ADDR, DATA, WE, DONE, KEY_WE, KEY_DATA);
     input  wire         CLK, RST_X, RXD;
-    output reg  [31:0]  ADDR;
-    output reg  [31:0]  DATA;
-    output reg          WE;
-    output reg          DONE; // program load is done
-    output wire         KEY_WE;
-    output wire [7:0]   KEY_DATA;
+    (* mark_debug *) output reg  [31:0]  ADDR;
+    (* mark_debug *) output reg  [31:0]  DATA;
+    (* mark_debug *) output reg          WE;
+    (* mark_debug *) output reg          DONE; // program load is done
+    (* mark_debug *) output wire         KEY_WE;
+    (* mark_debug *) output wire [7:0]   KEY_DATA;
 
     reg [31:0] waddr; // memory write address
 
-    wire SER_EN;
-    wire [7:0] SER_DATA;
+    (* mark_debug *) wire SER_EN;
+    (* mark_debug *) wire [7:0] SER_DATA;
     serialc serc (CLK, RST_X, RXD, SER_DATA, SER_EN);
 
     assign KEY_WE = SER_EN && DONE;

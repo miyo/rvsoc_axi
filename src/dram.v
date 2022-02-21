@@ -89,10 +89,10 @@ module DRAM_con_witout_cache #(
      output wire                         o_clk,
      output wire                         o_rst_x,
      // user interface ports
-     input  wire                         i_rd_en,
-     input  wire                         i_wr_en,
-     input  wire [31:0]                  i_addr,
-     input  wire [31:0]                  i_data,
+     (* mark_debug *) input  wire                         i_rd_en,
+     (* mark_debug *) input  wire                         i_wr_en,
+     (* mark_debug *) input  wire [31:0]                  i_addr,
+     (* mark_debug *) input  wire [31:0]                  i_data,
      output wire                         o_init_calib_complete,
      output wire [127:0]                 o_data,
      output wire                         o_busy,
@@ -118,14 +118,14 @@ module DRAM_con_witout_cache #(
     wire                        dram_wdf_ready;
 
     reg                         wen_afifo1;
-    reg  [68:0]                 din_afifo1;
+    (* mark_debug *) reg  [68:0]                 din_afifo1;
     wire                        ren_afifo1;
-    wire [68:0]                 dout_afifo1;
+    (* mark_debug *) wire [68:0]                 dout_afifo1;
     wire                        empty_afifo1;
     wire                        full_afifo1;
     wire                        dout_afifo1_wr_en;
-    wire [31:0]                 dout_afifo1_addr;
-    wire [31:0]                 dout_afifo1_data;
+    (* mark_debug *) wire [31:0]                 dout_afifo1_addr;
+    (* mark_debug *) wire [31:0]                 dout_afifo1_data;
 
     wire                        wen_afifo2;
     wire [127:0]                din_afifo2;

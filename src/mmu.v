@@ -647,10 +647,10 @@ module m_mmu(
     assign w_uart_data = r_uart_data;
     assign w_uart_we   = r_uart_we;
 
-    wire [31:0]  w_pl_init_addr;
-    wire [31:0]  w_pl_init_data;
-    wire         w_pl_init_we;
-    wire         w_pl_init_done;
+    (* mark_debug *) wire [31:0]  w_pl_init_addr;
+    (* mark_debug *) wire [31:0]  w_pl_init_data;
+    (* mark_debug *) wire         w_pl_init_we;
+    (* mark_debug *) wire         w_pl_init_done;
     PLOADER ploader(CLK, RST_X, w_rxd, w_pl_init_addr, w_pl_init_data, w_pl_init_we,
                     w_pl_init_done, w_key_we, w_key_data);
 
@@ -745,7 +745,7 @@ module m_mmu(
                     (r_init_state == 3) ? r_initaddr3    : 
                     (r_init_state == 4) ? r_initaddr2    : w_dram_addr_t;
     
-    wire [31:0]  w_dram_wdata_t   =   (r_init_state == 1) ? 32'b0 :
+    (* mark_debug *) wire [31:0]  w_dram_wdata_t   =   (r_init_state == 1) ? 32'b0 :
                                     (r_init_state == 5) ? w_dram_wdata : w_pl_init_data;
     wire         w_dram_we_t      =   (w_pte_we || w_dram_we || w_imag_we) && !w_dram_busy;
     wire [2:0]   w_dram_ctrl_t  = (!w_init_done) ? `FUNCT3_SW____ : w_dram_ctrl;

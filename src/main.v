@@ -14,6 +14,7 @@ module m_main(
               input  wire        CLK_P,
               input  wire        CLK_N,
 `endif
+	      output wire        core_clk_div2_out,
               input  wire        w_rxd,
               output wire        w_txd,
 `ifndef ARTYA7
@@ -77,7 +78,7 @@ module m_main(
               output wire  [3:0] ddr3_dm,    //
               output wire  [0:0] ddr3_odt    //
 `endif
-`endif
+`endif // !`ifndef ARTYA7
               );
 
     wire RST_X_IN = 1;
@@ -143,7 +144,9 @@ module m_main(
     //clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .clk_out2(ref_clk), .clk_out3(), .locked(w_locked));
     clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
     `else
-    clk_wiz_0 m_clkgen0 (.clk_in1_n(CLK_N), .clk_in1_p(CLK_P),
+    wire CLK;
+    IBUFDS ibufds_i(.O(CLK), .I(CLK_P), .IB(CLK_N));
+    clk_wiz_0 m_clkgen0 (.clk_in1(CLK),
                          .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
     `endif
 `endif
@@ -306,11 +309,7 @@ module m_main(
     reg  [12:0] r_cnt_B=0, r_cnt_G=64, r_cnt_R=512;
     reg  [11:0] r_ctrl_cnt = 0;
     reg   [3:0] r_blite_cnt = 0;
-`ifndef GENESYS2
     always@(posedge CLK) begin
-`else
-    always@(posedge ref_clk) begin
-`endif
         r_ctrl_cnt <= r_ctrl_cnt + 1;
         r_blite_cnt <= r_blite_cnt + 1;
         if(r_ctrl_cnt == 0) begin
@@ -331,6 +330,13 @@ module m_main(
                                             (w_priv == `PRIV_U) ? 3'b001 :
                                             (w_priv == `PRIV_S) ? 3'b010 :
                                             (w_priv == `PRIV_M) ? 3'b100 : 0;
+
+    reg core_clk_div2 = 0;
+    always @(posedge CORE_CLK) begin
+	core_clk_div2 <= ~core_clk_div2;
+    end
+    assign core_clk_div2_out = core_clk_div2;
+
 endmodule
 
 /**************************************************************************************************/
