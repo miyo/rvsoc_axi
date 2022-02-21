@@ -1,6 +1,6 @@
 #!/bin/sh
 
-for i in nexsys4 arty35t arty100t genesys2
+for i in nexsys4 arty35t arty100t genesys2 fic
 do
   rm -rf $i.cache
   rm -rf $i.hw

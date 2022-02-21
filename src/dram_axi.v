@@ -174,7 +174,7 @@ module DRAMController_AXI #(
 
     assign o_ready = app_rdy;
     assign o_wdf_ready = app_wdf_rdy;
-
+`ifndef FIC
   mig_7series_0_axi u_mig_7series_0_axi (
 
     // Memory interface ports
@@ -255,7 +255,7 @@ module DRAMController_AXI #(
     .device_temp_i                  (12'd0),  // input [11:0]			device_temp_i
     .sys_rst                        (sys_rst_x) // input sys_rst
     );
-
+`endif
     assign s_axi_bready = 1'b1;
     assign s_axi_rready = 1'b1;
 
