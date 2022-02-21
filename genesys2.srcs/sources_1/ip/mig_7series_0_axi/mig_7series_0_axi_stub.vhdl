@@ -1,10 +1,10 @@
 -- Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
--- Tool Version: Vivado v.2019.2 (lin64) Build 2700185 Thu Oct 24 18:45:48 MDT 2019
--- Date        : Tue Jan  4 11:08:33 2022
--- Host        : pumpkin running 64-bit Ubuntu 20.04.3 LTS
+-- Tool Version: Vivado v.2019.2 (lin64) Build 2708876 Wed Nov  6 21:39:14 MST 2019
+-- Date        : Mon Feb 21 16:10:33 2022
+-- Host        : carrot running 64-bit Ubuntu 20.04.4 LTS
 -- Command     : write_vhdl -force -mode synth_stub
---               /home/miyo/work/rvsoc_src_ver053_axi/genesys2.srcs/sources_1/ip/mig_7series_0_axi/mig_7series_0_axi_stub.vhdl
+--               /home/miyo/rvsoc_src_ver053_axi/genesys2.srcs/sources_1/ip/mig_7series_0_axi/mig_7series_0_axi_stub.vhdl
 -- Design      : mig_7series_0_axi
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7k325tffg900-2

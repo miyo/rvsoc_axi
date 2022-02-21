@@ -80,6 +80,5 @@
     .resetn(resetn), // input resetn
     .locked(locked),       // output locked
    // Clock in ports
-    .clk_in1_p(clk_in1_p),    // input clk_in1_p
-    .clk_in1_n(clk_in1_n));    // input clk_in1_n
+    .clk_in1(clk_in1));      // input clk_in1
 // INST_TAG_END ------ End INSTANTIATION Template ---------
