@@ -2,8 +2,8 @@
 ##### SimRV/RISC-V since 2018-07-05                  ArchLab. TokyoTech   #####
 ###############################################################################
 
-RISCV_PREFIX = /opt/riscv/bin/riscv32-unknown-elf-
-CCFLAGS      = -O2 -march=rv32i -mabi=ilp32
+RISCV_PREFIX ?= /opt/riscv/bin/riscv32-unknown-elf-
+CCFLAGS      = -O1 -march=rv32i -mabi=ilp32
 TARGET       = main
 OBJS         = main.o simrv.o startup.o
 

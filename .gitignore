@@ -14,3 +14,9 @@ slurm-*.out
 *.log
 .Xil/
 *~
+ucimage/main.bin
+ucimage/main.elf
+ucimage/main.o
+ucimage/simrv.o
+ucimage/startup.o
+
