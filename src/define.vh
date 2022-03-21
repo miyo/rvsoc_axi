@@ -66,8 +66,8 @@
 
 `define CACHE_SIZE (128*1024)
 
-`define SERIAL_WCNT 13 // 8M baud UART wait count for 104MHz
-//`define SERIAL_WCNT 52 // 2Mbps for 104MHz
+//`define SERIAL_WCNT 13 // 8M baud UART wait count for 104MHz
+`define SERIAL_WCNT 52 // 2Mbps for 104MHz
 
 //`define STATE
 //`define PC_TRACE

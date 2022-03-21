@@ -1,15 +1,19 @@
 import sys
 import serial
+import argparse
 
-port = "/dev/ttyUSB1"
+parser = argparse.ArgumentParser()
 
-num = 8000000
-if len(sys.argv) > 1:
-    num = int(sys.argv[1]) * 1000000
+parser.add_argument("--port", required=True, help="port (ex. /dev/ttyUSB0)")
+parser.add_argument("--image", default="initmem.bin", help="image file")
+parser.add_argument("--rate", default="8000000", help="baud rate")
+
+args = parser.parse_args()
+
+port = args.port
+num = int(args.rate)
 num = num if num > 0 else 1000000
-name = "initmem.bin"
-if len(sys.argv) > 2:
-    name = sys.argv[2]
+name = args.image
 
 with serial.Serial(port, num) as ser:
     print("serial baud rate : "+str(num))
