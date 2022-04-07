@@ -1,3 +1,13 @@
+genesys2.cache
+genesys2.hw
+genesys2.ip_user_files
+genesys2.runs
+genesys2.sim
+fic_mk2.cache
+fic_mk2.hw
+fic_mk2.ip_user_files
+fic_mk2.runs
+fic_mk2.sim
 nexys4.cache
 nexys4.hw
 nexys4.ip_user_files

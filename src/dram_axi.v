@@ -23,60 +23,53 @@ module DRAMController_AXI #(
      // input clk, rst (active-low)
      input  wire                         sys_clk,
      input  wire                         sys_rst_x,
-`ifdef ARTYA7
-     input  wire                         ref_clk, 
-`endif
-     // memory interface ports
-`ifndef ARTYA7
-     inout  wire [DDR2_DQ_WIDTH-1 : 0]   ddr2_dq,
-     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_n,
-     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_p,
-     output wire [DDR2_ADDR_WIDTH-1 : 0] ddr2_addr,
-     output wire [DDR2_BA_WIDTH-1 : 0]   ddr2_ba,
-     output wire                         ddr2_ras_n,
-     output wire                         ddr2_cas_n,
-     output wire                         ddr2_we_n,
-     output wire [0:0]                   ddr2_ck_p,
-     output wire [0:0]                   ddr2_ck_n,
-     output wire [0:0]                   ddr2_cke,
-     output wire [0:0]                   ddr2_cs_n,
-     output wire [DDR2_DM_WIDTH-1 : 0]   ddr2_dm,
-     output wire [0:0]                   ddr2_odt,
-`else
-`ifndef GENESYS2
-     inout  wire [DDR3_DQ_WIDTH-1 : 0]   ddr3_dq,
-     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_n,
-     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_p,
-     output wire [DDR3_ADDR_WIDTH-1 : 0] ddr3_addr,
-     output wire [DDR3_BA_WIDTH-1 : 0]   ddr3_ba,
-     output wire                         ddr3_ras_n,
-     output wire                         ddr3_cas_n,
-     output wire                         ddr3_we_n,
-     output wire [0:0]                   ddr3_ck_p,
-     output wire [0:0]                   ddr3_ck_n,
-     output wire                         ddr3_reset_n,
-     output wire [0:0]                   ddr3_cke,
-     output wire [0:0]                   ddr3_cs_n,
-     output wire [DDR3_DM_WIDTH-1 : 0]   ddr3_dm,
-     output wire [0:0]                   ddr3_odt,
-`else
-    inout  wire [31:0]  ddr3_dq,
-    inout  wire  [3:0]  ddr3_dqs_n,
-    inout  wire  [3:0]  ddr3_dqs_p,
-    output wire [14:0]  ddr3_addr,
-    output wire  [2:0]  ddr3_ba,
-    output wire         ddr3_ras_n,
-    output wire         ddr3_cas_n,
-    output wire         ddr3_we_n,
-    output wire         ddr3_ck_p,
-    output wire         ddr3_ck_n,
-    output wire         ddr3_reset_n,
-    output wire         ddr3_cke,
-    output wire         ddr3_cs_n,
-    output wire  [3:0]  ddr3_dm,
-    output wire         ddr3_odt,
-`endif
-`endif
+
+     input wire ui_clk,
+     input wire ui_rst,
+     input wire init_calib_complete,
+     
+     output reg [3:0] s_axi_awid,
+     output reg [APP_ADDR_WIDTH-1:0] s_axi_awaddr,
+     output reg [7:0] s_axi_awlen,
+     output reg [2:0] s_axi_awsize,
+     output reg [1:0] s_axi_awburst,
+     output reg [0:0] s_axi_awlock,
+     output reg [3:0] s_axi_awcache,
+     output reg [2:0] s_axi_awprot,
+     output reg [3:0] s_axi_awqos,
+     output reg s_axi_awvalid,
+     input wire s_axi_awready,
+     
+     output reg [APP_DATA_WIDTH-1:0] s_axi_wdata,
+     output reg [APP_MASK_WIDTH-1:0] s_axi_wstrb,
+     output reg s_axi_wlast,
+     output reg s_axi_wvalid,
+     input wire s_axi_wready,
+     
+     input wire [3:0] s_axi_bid,
+     input wire [1:0] s_axi_bresp,
+     input wire s_axi_bvalid,
+     output wire s_axi_bready,
+     
+     output reg [3:0] s_axi_arid,
+     output reg [APP_ADDR_WIDTH-1:0] s_axi_araddr,
+     output reg [7:0] s_axi_arlen,
+     output reg [2:0] s_axi_arsize,
+     output reg [1:0] s_axi_arburst,
+     output reg [0:0] s_axi_arlock,
+     output reg [3:0] s_axi_arcache,
+     output reg [2:0] s_axi_arprot,
+     output reg [3:0] s_axi_arqos,
+     output reg s_axi_arvalid,
+     input wire s_axi_arready,
+     
+     input wire [3:0] s_axi_rid,
+     input wire [APP_DATA_WIDTH-1:0] s_axi_rdata,
+     input wire [1:0] s_axi_rresp,
+     input wire s_axi_rlast,
+     input wire s_axi_rvalid,
+     output wire s_axi_rready,
+     
      // output clk, rst (active-low)
      output wire                         o_clk,
      output wire                         o_rst_x,
@@ -105,55 +98,10 @@ module DRAMController_AXI #(
     localparam CMD_READ  = 3'b001;
     localparam CMD_WRITE = 3'b000;
 
-    wire                        init_calib_complete;
 
     reg                         app_rdy;
     reg                         app_wdf_rdy;
 
-    wire                        clk;
-    wire                        rst;
-
-    (* mark_debug *) reg [3:0] s_axi_awid;
-    (* mark_debug *) reg [APP_ADDR_WIDTH-1:0] s_axi_awaddr;
-    (* mark_debug *) reg [7:0] s_axi_awlen;
-    (* mark_debug *) reg [2:0] s_axi_awsize;
-    (* mark_debug *) reg [1:0] s_axi_awburst;
-    (* mark_debug *) reg [0:0] s_axi_awlock;
-    (* mark_debug *) reg [3:0] s_axi_awcache;
-    (* mark_debug *) reg [2:0] s_axi_awprot;
-    (* mark_debug *) reg [3:0] s_axi_awqos;
-    (* mark_debug *) reg s_axi_awvalid;
-    (* mark_debug *) wire s_axi_awready;
-
-    (* mark_debug *) reg [APP_DATA_WIDTH-1:0] s_axi_wdata;
-    (* mark_debug *) reg [APP_MASK_WIDTH-1:0] s_axi_wstrb;
-    (* mark_debug *) reg s_axi_wlast;
-    (* mark_debug *) reg s_axi_wvalid;
-    (* mark_debug *) wire s_axi_wready;
-
-    (* mark_debug *) wire [3:0] s_axi_bid;
-    (* mark_debug *) wire [1:0] s_axi_bresp;
-    (* mark_debug *) wire s_axi_bvalid;
-    (* mark_debug *) wire s_axi_bready;
-
-    (* mark_debug *) reg [3:0] s_axi_arid;
-    (* mark_debug *) reg [APP_ADDR_WIDTH-1:0] s_axi_araddr;
-    (* mark_debug *) reg [7:0] s_axi_arlen;
-    (* mark_debug *) reg [2:0] s_axi_arsize;
-    (* mark_debug *) reg [1:0] s_axi_arburst;
-    (* mark_debug *) reg [0:0] s_axi_arlock;
-    (* mark_debug *) reg [3:0] s_axi_arcache;
-    (* mark_debug *) reg [2:0] s_axi_arprot;
-    (* mark_debug *) reg [3:0] s_axi_arqos;
-    (* mark_debug *) reg s_axi_arvalid;
-    (* mark_debug *) wire s_axi_arready;
-
-    (* mark_debug *) wire [3:0] s_axi_rid;
-    (* mark_debug *) wire [APP_DATA_WIDTH-1:0] s_axi_rdata;
-    (* mark_debug *) wire [1:0] s_axi_rresp;
-    (* mark_debug *) wire s_axi_rlast;
-    (* mark_debug *) wire s_axi_rvalid;
-    (* mark_debug *) wire s_axi_rready;
 
     (* mark_debug *) reg  [2:0]                  state;
 
@@ -163,8 +111,8 @@ module DRAMController_AXI #(
     reg  [APP_MASK_WIDTH-1 : 0] data_mask = 0;
 `endif
 
-    assign o_clk = clk;
-    assign o_rst_x = ~rst;
+    assign o_clk = ui_clk;
+    assign o_rst_x = ~ui_rst;
 
     assign o_init_calib_complete = init_calib_complete;
 
@@ -174,93 +122,12 @@ module DRAMController_AXI #(
 
     assign o_ready = app_rdy;
     assign o_wdf_ready = app_wdf_rdy;
-`ifndef FIC
-  mig_7series_0_axi u_mig_7series_0_axi (
 
-    // Memory interface ports
-    .ddr3_addr                      (ddr3_addr),  // output [13:0]		ddr3_addr
-    .ddr3_ba                        (ddr3_ba),  // output [2:0]		ddr3_ba
-    .ddr3_cas_n                     (ddr3_cas_n),  // output			ddr3_cas_n
-    .ddr3_ck_n                      (ddr3_ck_n),  // output [0:0]		ddr3_ck_n
-    .ddr3_ck_p                      (ddr3_ck_p),  // output [0:0]		ddr3_ck_p
-    .ddr3_cke                       (ddr3_cke),  // output [0:0]		ddr3_cke
-    .ddr3_ras_n                     (ddr3_ras_n),  // output			ddr3_ras_n
-    .ddr3_reset_n                   (ddr3_reset_n),  // output			ddr3_reset_n
-    .ddr3_we_n                      (ddr3_we_n),  // output			ddr3_we_n
-    .ddr3_dq                        (ddr3_dq),  // inout [15:0]		ddr3_dq
-    .ddr3_dqs_n                     (ddr3_dqs_n),  // inout [1:0]		ddr3_dqs_n
-    .ddr3_dqs_p                     (ddr3_dqs_p),  // inout [1:0]		ddr3_dqs_p
-    .ddr3_cs_n                      (ddr3_cs_n),  // output [0:0]		ddr3_cs_n
-    .ddr3_dm                        (ddr3_dm),  // output [1:0]		ddr3_dm
-    .ddr3_odt                       (ddr3_odt),  // output [0:0]		ddr3_odt
-
-    .init_calib_complete            (init_calib_complete),  // output			init_calib_complete
-    // Application interface ports
-    .ui_clk                         (clk),  // output			ui_clk
-    .ui_clk_sync_rst                (rst),  // output			ui_clk_sync_rst
-    .mmcm_locked                    (),  // output			mmcm_locked
-    .aresetn                        (1'b1),  // input			aresetn
-    .app_sr_req                     (1'b0),  // input			app_sr_req
-    .app_ref_req                    (1'b0),  // input			app_ref_req
-    .app_zq_req                     (1'b0),  // input			app_zq_req
-    .app_sr_active                  (),  // output			app_sr_active
-    .app_ref_ack                    (),  // output			app_ref_ack
-    .app_zq_ack                     (),  // output			app_zq_ack
-    // Slave Interface Write Address Ports
-    .s_axi_awid                     (s_axi_awid),  // input [3:0]			s_axi_awid
-    .s_axi_awaddr                   (s_axi_awaddr),  // input [27:0]			s_axi_awaddr
-    .s_axi_awlen                    (s_axi_awlen),  // input [7:0]			s_axi_awlen
-    .s_axi_awsize                   (s_axi_awsize),  // input [2:0]			s_axi_awsize
-    .s_axi_awburst                  (s_axi_awburst),  // input [1:0]			s_axi_awburst
-    .s_axi_awlock                   (s_axi_awlock),  // input [0:0]			s_axi_awlock
-    .s_axi_awcache                  (s_axi_awcache),  // input [3:0]			s_axi_awcache
-    .s_axi_awprot                   (s_axi_awprot),  // input [2:0]			s_axi_awprot
-    .s_axi_awqos                    (s_axi_awqos),  // input [3:0]			s_axi_awqos
-    .s_axi_awvalid                  (s_axi_awvalid),  // input			s_axi_awvalid
-    .s_axi_awready                  (s_axi_awready),  // output			s_axi_awready
-    // Slave Interface Write Data Ports
-    .s_axi_wdata                    (s_axi_wdata),  // input [127:0]			s_axi_wdata
-    .s_axi_wstrb                    (s_axi_wstrb),  // input [15:0]			s_axi_wstrb
-    .s_axi_wlast                    (s_axi_wlast),  // input			s_axi_wlast
-    .s_axi_wvalid                   (s_axi_wvalid),  // input			s_axi_wvalid
-    .s_axi_wready                   (s_axi_wready),  // output			s_axi_wready
-    // Slave Interface Write Response Ports
-    .s_axi_bid                      (s_axi_bid),  // output [3:0]			s_axi_bid
-    .s_axi_bresp                    (s_axi_bresp),  // output [1:0]			s_axi_bresp
-    .s_axi_bvalid                   (s_axi_bvalid),  // output			s_axi_bvalid
-    .s_axi_bready                   (s_axi_bready),  // input			s_axi_bready
-    // Slave Interface Read Address Ports
-    .s_axi_arid                     (s_axi_arid),  // input [3:0]			s_axi_arid
-    .s_axi_araddr                   (s_axi_araddr),  // input [27:0]			s_axi_araddr
-    .s_axi_arlen                    (s_axi_arlen),  // input [7:0]			s_axi_arlen
-    .s_axi_arsize                   (s_axi_arsize),  // input [2:0]			s_axi_arsize
-    .s_axi_arburst                  (s_axi_arburst),  // input [1:0]			s_axi_arburst
-    .s_axi_arlock                   (s_axi_arlock),  // input [0:0]			s_axi_arlock
-    .s_axi_arcache                  (s_axi_arcache),  // input [3:0]			s_axi_arcache
-    .s_axi_arprot                   (s_axi_arprot),  // input [2:0]			s_axi_arprot
-    .s_axi_arqos                    (s_axi_arqos),  // input [3:0]			s_axi_arqos
-    .s_axi_arvalid                  (s_axi_arvalid),  // input			s_axi_arvalid
-    .s_axi_arready                  (s_axi_arready),  // output			s_axi_arready
-    // Slave Interface Read Data Ports
-    .s_axi_rid                      (s_axi_rid),  // output [3:0]			s_axi_rid
-    .s_axi_rdata                    (s_axi_rdata),  // output [127:0]			s_axi_rdata
-    .s_axi_rresp                    (s_axi_rresp),  // output [1:0]			s_axi_rresp
-    .s_axi_rlast                    (s_axi_rlast),  // output			s_axi_rlast
-    .s_axi_rvalid                   (s_axi_rvalid),  // output			s_axi_rvalid
-    .s_axi_rready                   (s_axi_rready),  // input			s_axi_rready
-    // System Clock Ports
-    .sys_clk_i                      (sys_clk),
-    // Reference Clock Ports
-    .clk_ref_i                      (ref_clk),
-    .device_temp_i                  (12'd0),  // input [11:0]			device_temp_i
-    .sys_rst                        (sys_rst_x) // input sys_rst
-    );
-`endif
     assign s_axi_bready = 1'b1;
     assign s_axi_rready = 1'b1;
 
-    always @(posedge clk) begin
-        if (rst) begin
+    always @(posedge ui_clk) begin
+        if (ui_rst) begin
             state <= STATE_CALIB;
             data_mask <= 0;
 	    app_rdy <= 0;
