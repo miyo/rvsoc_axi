@@ -12,7 +12,7 @@ void simrv_exit () {
 
 void simrv_putc (char c) {
     volatile int i;
-    for(i = 0; i < 400; i++) ;
+    for(i = 0; i < 100; i++) ;
     *TOHOST_ADDR = CMD_PRINT_CHAR << 16 | c;
 }
 
