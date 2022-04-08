@@ -283,15 +283,6 @@ module DRAM_Wrapper #(
 
     reg  [127:0]r_o_data = 0;
     reg         r_o_busy = 0;
-
-    reg  [2:0]  r_ctrl  = 0;
-    reg  [31:0] r_iaddr = 0;
-    wire [127:0]w_ctrl_data;
-
-    reg  [31:0] r_wdata = 0;
-    reg         r_le = 0;
-    reg         r_we = 0;
-
     always @(posedge o_clk) begin
         r_o_data <= w_ctrl_data;
         r_o_busy <= w_o_busy;
@@ -301,6 +292,14 @@ module DRAM_Wrapper #(
     assign o_busy = r_o_busy || r_le || r_we;
 
     /***** select load data by i_ctrl *****/
+
+    reg  [2:0]  r_ctrl  = 0;
+    reg  [31:0] r_iaddr = 0;
+    wire [127:0]w_ctrl_data;
+
+    reg  [31:0] r_wdata = 0;
+    reg         r_le = 0;
+    reg         r_we = 0;
 
     always @(posedge o_clk) begin
         //if(i_rd_en) begin
@@ -398,53 +397,60 @@ module DRAM_conRV#(
      // input clk, rst (active-low)
      input  wire                         mig_clk,
      input  wire                         mig_rst_x,
-
-     input wire ui_clk,
-     input wire ui_rst,
-     input wire init_calib_complete,
-     
-     output wire [3:0] s_axi_awid,
-     output wire [APP_ADDR_WIDTH-1:0] s_axi_awaddr,
-     output wire [7:0] s_axi_awlen,
-     output wire [2:0] s_axi_awsize,
-     output wire [1:0] s_axi_awburst,
-     output wire [0:0] s_axi_awlock,
-     output wire [3:0] s_axi_awcache,
-     output wire [2:0] s_axi_awprot,
-     output wire [3:0] s_axi_awqos,
-     output wire s_axi_awvalid,
-     input wire s_axi_awready,
-     
-     output wire [APP_DATA_WIDTH-1:0] s_axi_wdata,
-     output wire [APP_MASK_WIDTH-1:0] s_axi_wstrb,
-     output wire s_axi_wlast,
-     output wire s_axi_wvalid,
-     input wire s_axi_wready,
-     
-     input wire [3:0] s_axi_bid,
-     input wire [1:0] s_axi_bresp,
-     input wire s_axi_bvalid,
-     output wire s_axi_bready,
-     
-     output wire [3:0] s_axi_arid,
-     output wire [APP_ADDR_WIDTH-1:0] s_axi_araddr,
-     output wire [7:0] s_axi_arlen,
-     output wire [2:0] s_axi_arsize,
-     output wire [1:0] s_axi_arburst,
-     output wire [0:0] s_axi_arlock,
-     output wire [3:0] s_axi_arcache,
-     output wire [2:0] s_axi_arprot,
-     output wire [3:0] s_axi_arqos,
-     output wire s_axi_arvalid,
-     input wire s_axi_arready,
-     
-     input wire [3:0] s_axi_rid,
-     input wire [APP_DATA_WIDTH-1:0] s_axi_rdata,
-     input wire [1:0] s_axi_rresp,
-     input wire s_axi_rlast,
-     input wire s_axi_rvalid,
-     output wire s_axi_rready,
-
+`ifdef ARTYA7
+     input  wire                         ref_clk,
+`endif
+     // memory interface ports
+`ifndef ARTYA7
+     inout  wire [DDR2_DQ_WIDTH-1 : 0]   ddr2_dq,
+     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_n,
+     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_p,
+     output wire [DDR2_ADDR_WIDTH-1 : 0] ddr2_addr,
+     output wire [DDR2_BA_WIDTH-1 : 0]   ddr2_ba,
+     output wire                         ddr2_ras_n,
+     output wire                         ddr2_cas_n,
+     output wire                         ddr2_we_n,
+     output wire [0:0]                   ddr2_ck_p,
+     output wire [0:0]                   ddr2_ck_n,
+     output wire [0:0]                   ddr2_cke,
+     output wire [0:0]                   ddr2_cs_n,
+     output wire [DDR2_DM_WIDTH-1 : 0]   ddr2_dm,
+     output wire [0:0]                   ddr2_odt,
+`else
+`ifndef GENESYS2
+     inout  wire [DDR3_DQ_WIDTH-1 : 0]   ddr3_dq,
+     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_n,
+     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_p,
+     output wire [DDR3_ADDR_WIDTH-1 : 0] ddr3_addr,
+     output wire [DDR3_BA_WIDTH-1 : 0]   ddr3_ba,
+     output wire                         ddr3_ras_n,
+     output wire                         ddr3_cas_n,
+     output wire                         ddr3_we_n,
+     output wire [0:0]                   ddr3_ck_p,
+     output wire [0:0]                   ddr3_ck_n,
+     output wire                         ddr3_reset_n,
+     output wire [0:0]                   ddr3_cke,
+     output wire [0:0]                   ddr3_cs_n,
+     output wire [DDR3_DM_WIDTH-1 : 0]   ddr3_dm,
+     output wire [0:0]                   ddr3_odt,
+`else
+    inout  wire [31:0]  ddr3_dq,
+    inout  wire  [3:0]  ddr3_dqs_n,
+    inout  wire  [3:0]  ddr3_dqs_p,
+    output wire [14:0]  ddr3_addr,
+    output wire  [2:0]  ddr3_ba,
+    output wire         ddr3_ras_n,
+    output wire         ddr3_cas_n,
+    output wire         ddr3_we_n,
+    output wire         ddr3_ck_p,
+    output wire         ddr3_ck_n,
+    output wire         ddr3_reset_n,
+    output wire         ddr3_cke,
+    output wire         ddr3_cs_n,
+    output wire  [3:0]  ddr3_dm,
+    output wire         ddr3_odt,
+`endif
+`endif
      // output clk, rst (active-low)
      output wire                         o_clk,
      output wire                         o_rst_x,
@@ -501,53 +507,42 @@ module DRAM_conRV#(
                // input clk, rst (active-low)
                .mig_clk(mig_clk),
                .mig_rst_x(mig_rst_x),
-
-               .ui_clk(ui_clk),
-               .ui_rst(ui_rst),
-               .init_calib_complete(init_calib_complete),
-     
-               .s_axi_awid(s_axi_awid),
-               .s_axi_awaddr(s_axi_awaddr),
-               .s_axi_awlen(s_axi_awlen),
-               .s_axi_awsize(s_axi_awsize),
-               .s_axi_awburst(s_axi_awburst),
-               .s_axi_awlock(s_axi_awlock),
-               .s_axi_awcache(s_axi_awcache),
-               .s_axi_awprot(s_axi_awprot),
-               .s_axi_awqos(s_axi_awqos),
-               .s_axi_awvalid(s_axi_awvalid),
-               .s_axi_awready(s_axi_awready),
-     
-               .s_axi_wdata(s_axi_wdata),
-               .s_axi_wstrb(s_axi_wstrb),
-               .s_axi_wlast(s_axi_wlast),
-               .s_axi_wvalid(s_axi_wvalid),
-               .s_axi_wready(s_axi_wready),
-     
-               .s_axi_bid(s_axi_bid),
-               .s_axi_bresp(s_axi_bresp),
-               .s_axi_bvalid(s_axi_bvalid),
-               .s_axi_bready(s_axi_bready),
-     
-               .s_axi_arid(s_axi_arid),
-               .s_axi_araddr(s_axi_araddr),
-               .s_axi_arlen(s_axi_arlen),
-               .s_axi_arsize(s_axi_arsize),
-               .s_axi_arburst(s_axi_arburst),
-               .s_axi_arlock(s_axi_arlock),
-               .s_axi_arcache(s_axi_arcache),
-               .s_axi_arprot(s_axi_arprot),
-               .s_axi_arqos(s_axi_arqos),
-               .s_axi_arvalid(s_axi_arvalid),
-               .s_axi_arready(s_axi_arready),
-     
-               .s_axi_rid(s_axi_rid),
-               .s_axi_rdata(s_axi_rdata),
-               .s_axi_rresp(s_axi_rresp),
-               .s_axi_rlast(s_axi_rlast),
-               .s_axi_rvalid(s_axi_rvalid),
-               .s_axi_rready(s_axi_rready),
-
+`ifdef ARTYA7
+               .ref_clk(ref_clk),
+`endif
+               // memory interface ports
+`ifndef ARTYA7
+               .ddr2_dq(ddr2_dq),
+               .ddr2_dqs_n(ddr2_dqs_n),
+               .ddr2_dqs_p(ddr2_dqs_p),
+               .ddr2_addr(ddr2_addr),
+               .ddr2_ba(ddr2_ba),
+               .ddr2_ras_n(ddr2_ras_n),
+               .ddr2_cas_n(ddr2_cas_n),
+               .ddr2_we_n(ddr2_we_n),
+               .ddr2_ck_p(ddr2_ck_p),
+               .ddr2_ck_n(ddr2_ck_n),
+               .ddr2_cke(ddr2_cke),
+               .ddr2_cs_n(ddr2_cs_n),
+               .ddr2_dm(ddr2_dm),
+               .ddr2_odt(ddr2_odt),
+`else
+               .ddr3_dq(ddr3_dq),
+               .ddr3_dqs_n(ddr3_dqs_n),
+               .ddr3_dqs_p(ddr3_dqs_p),
+               .ddr3_addr(ddr3_addr),
+               .ddr3_ba(ddr3_ba),
+               .ddr3_ras_n(ddr3_ras_n),
+               .ddr3_cas_n(ddr3_cas_n),
+               .ddr3_we_n(ddr3_we_n),
+               .ddr3_ck_p(ddr3_ck_p),
+               .ddr3_ck_n(ddr3_ck_n),
+               .ddr3_reset_n(ddr3_reset_n),
+               .ddr3_cke(ddr3_cke),
+               .ddr3_cs_n(ddr3_cs_n),
+               .ddr3_dm(ddr3_dm),
+               .ddr3_odt(ddr3_odt),
+`endif
                // output clk, rst (active-low)
                .o_clk(o_clk),
                .o_rst_x(o_rst_x),
@@ -589,53 +584,60 @@ module DRAM_conX#(
      // input clk, rst (active-low)
      input  wire                         mig_clk,
      input  wire                         mig_rst_x,
-
-     input wire ui_clk,
-     input wire ui_rst,
-     input wire init_calib_complete,
-     
-     output wire [3:0] s_axi_awid,
-     output wire [APP_ADDR_WIDTH-1:0] s_axi_awaddr,
-     output wire [7:0] s_axi_awlen,
-     output wire [2:0] s_axi_awsize,
-     output wire [1:0] s_axi_awburst,
-     output wire [0:0] s_axi_awlock,
-     output wire [3:0] s_axi_awcache,
-     output wire [2:0] s_axi_awprot,
-     output wire [3:0] s_axi_awqos,
-     output wire s_axi_awvalid,
-     input wire s_axi_awready,
-     
-     output wire [APP_DATA_WIDTH-1:0] s_axi_wdata,
-     output wire [APP_MASK_WIDTH-1:0] s_axi_wstrb,
-     output wire s_axi_wlast,
-     output wire s_axi_wvalid,
-     input wire s_axi_wready,
-     
-     input wire [3:0] s_axi_bid,
-     input wire [1:0] s_axi_bresp,
-     input wire s_axi_bvalid,
-     output wire s_axi_bready,
-     
-     output wire [3:0] s_axi_arid,
-     output wire [APP_ADDR_WIDTH-1:0] s_axi_araddr,
-     output wire [7:0] s_axi_arlen,
-     output wire [2:0] s_axi_arsize,
-     output wire [1:0] s_axi_arburst,
-     output wire [0:0] s_axi_arlock,
-     output wire [3:0] s_axi_arcache,
-     output wire [2:0] s_axi_arprot,
-     output wire [3:0] s_axi_arqos,
-     output wire s_axi_arvalid,
-     input wire s_axi_arready,
-     
-     input wire [3:0] s_axi_rid,
-     input wire [APP_DATA_WIDTH-1:0] s_axi_rdata,
-     input wire [1:0] s_axi_rresp,
-     input wire s_axi_rlast,
-     input wire s_axi_rvalid,
-     output wire s_axi_rready,
-
+`ifdef ARTYA7
+     input  wire                         ref_clk,
+`endif
+     // memory interface ports
+`ifndef ARTYA7
+     inout  wire [DDR2_DQ_WIDTH-1 : 0]   ddr2_dq,
+     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_n,
+     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_p,
+     output wire [DDR2_ADDR_WIDTH-1 : 0] ddr2_addr,
+     output wire [DDR2_BA_WIDTH-1 : 0]   ddr2_ba,
+     output wire                         ddr2_ras_n,
+     output wire                         ddr2_cas_n,
+     output wire                         ddr2_we_n,
+     output wire [0:0]                   ddr2_ck_p,
+     output wire [0:0]                   ddr2_ck_n,
+     output wire [0:0]                   ddr2_cke,
+     output wire [0:0]                   ddr2_cs_n,
+     output wire [DDR2_DM_WIDTH-1 : 0]   ddr2_dm,
+     output wire [0:0]                   ddr2_odt,
+`else
+`ifndef GENESYS2
+     inout  wire [DDR3_DQ_WIDTH-1 : 0]   ddr3_dq,
+     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_n,
+     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_p,
+     output wire [DDR3_ADDR_WIDTH-1 : 0] ddr3_addr,
+     output wire [DDR3_BA_WIDTH-1 : 0]   ddr3_ba,
+     output wire                         ddr3_ras_n,
+     output wire                         ddr3_cas_n,
+     output wire                         ddr3_we_n,
+     output wire [0:0]                   ddr3_ck_p,
+     output wire [0:0]                   ddr3_ck_n,
+     output wire                         ddr3_reset_n,
+     output wire [0:0]                   ddr3_cke,
+     output wire [0:0]                   ddr3_cs_n,
+     output wire [DDR3_DM_WIDTH-1 : 0]   ddr3_dm,
+     output wire [0:0]                   ddr3_odt,
+`else
+    inout  wire [31:0]  ddr3_dq,
+    inout  wire  [3:0]  ddr3_dqs_n,
+    inout  wire  [3:0]  ddr3_dqs_p,
+    output wire [14:0]  ddr3_addr,
+    output wire  [2:0]  ddr3_ba,
+    output wire         ddr3_ras_n,
+    output wire         ddr3_cas_n,
+    output wire         ddr3_we_n,
+    output wire         ddr3_ck_p,
+    output wire         ddr3_ck_n,
+    output wire         ddr3_reset_n,
+    output wire         ddr3_cke,
+    output wire         ddr3_cs_n,
+    output wire  [3:0]  ddr3_dm,
+    output wire         ddr3_odt,
+`endif
+`endif
      // output clk, rst (active-low)
      output wire                         o_clk,
      output wire                         o_rst_x,
@@ -702,53 +704,42 @@ module DRAM_conX#(
                // input clk, rst (active-low)
                .mig_clk(mig_clk),
                .mig_rst_x(mig_rst_x),
-
-               .ui_clk(ui_clk),
-               .ui_rst(ui_rst),
-               .init_calib_complete(init_calib_complete),
-     
-               .s_axi_awid(s_axi_awid),
-               .s_axi_awaddr(s_axi_awaddr),
-               .s_axi_awlen(s_axi_awlen),
-               .s_axi_awsize(s_axi_awsize),
-               .s_axi_awburst(s_axi_awburst),
-               .s_axi_awlock(s_axi_awlock),
-               .s_axi_awcache(s_axi_awcache),
-               .s_axi_awprot(s_axi_awprot),
-               .s_axi_awqos(s_axi_awqos),
-               .s_axi_awvalid(s_axi_awvalid),
-               .s_axi_awready(s_axi_awready),
-     
-               .s_axi_wdata(s_axi_wdata),
-               .s_axi_wstrb(s_axi_wstrb),
-               .s_axi_wlast(s_axi_wlast),
-               .s_axi_wvalid(s_axi_wvalid),
-               .s_axi_wready(s_axi_wready),
-     
-               .s_axi_bid(s_axi_bid),
-               .s_axi_bresp(s_axi_bresp),
-               .s_axi_bvalid(s_axi_bvalid),
-               .s_axi_bready(s_axi_bready),
-     
-               .s_axi_arid(s_axi_arid),
-               .s_axi_araddr(s_axi_araddr),
-               .s_axi_arlen(s_axi_arlen),
-               .s_axi_arsize(s_axi_arsize),
-               .s_axi_arburst(s_axi_arburst),
-               .s_axi_arlock(s_axi_arlock),
-               .s_axi_arcache(s_axi_arcache),
-               .s_axi_arprot(s_axi_arprot),
-               .s_axi_arqos(s_axi_arqos),
-               .s_axi_arvalid(s_axi_arvalid),
-               .s_axi_arready(s_axi_arready),
-     
-               .s_axi_rid(s_axi_rid),
-               .s_axi_rdata(s_axi_rdata),
-               .s_axi_rresp(s_axi_rresp),
-               .s_axi_rlast(s_axi_rlast),
-               .s_axi_rvalid(s_axi_rvalid),
-               .s_axi_rready(s_axi_rready),
-
+`ifdef ARTYA7
+               .ref_clk(ref_clk),
+`endif
+               // memory interface ports
+`ifndef ARTYA7
+               .ddr2_dq(ddr2_dq),
+               .ddr2_dqs_n(ddr2_dqs_n),
+               .ddr2_dqs_p(ddr2_dqs_p),
+               .ddr2_addr(ddr2_addr),
+               .ddr2_ba(ddr2_ba),
+               .ddr2_ras_n(ddr2_ras_n),
+               .ddr2_cas_n(ddr2_cas_n),
+               .ddr2_we_n(ddr2_we_n),
+               .ddr2_ck_p(ddr2_ck_p),
+               .ddr2_ck_n(ddr2_ck_n),
+               .ddr2_cke(ddr2_cke),
+               .ddr2_cs_n(ddr2_cs_n),
+               .ddr2_dm(ddr2_dm),
+               .ddr2_odt(ddr2_odt),
+`else
+               .ddr3_dq(ddr3_dq),
+               .ddr3_dqs_n(ddr3_dqs_n),
+               .ddr3_dqs_p(ddr3_dqs_p),
+               .ddr3_addr(ddr3_addr),
+               .ddr3_ba(ddr3_ba),
+               .ddr3_ras_n(ddr3_ras_n),
+               .ddr3_cas_n(ddr3_cas_n),
+               .ddr3_we_n(ddr3_we_n),
+               .ddr3_ck_p(ddr3_ck_p),
+               .ddr3_ck_n(ddr3_ck_n),
+               .ddr3_reset_n(ddr3_reset_n),
+               .ddr3_cke(ddr3_cke),
+               .ddr3_cs_n(ddr3_cs_n),
+               .ddr3_dm(ddr3_dm),
+               .ddr3_odt(ddr3_odt),
+`endif
                // output clk, rst (active-low)
                .o_clk(o_clk),
                .o_rst_x(o_rst_x),
@@ -789,53 +780,60 @@ module DRAM_Wrapper2 #(
      // input clk, rst (active-low)
      input  wire                         mig_clk,
      input  wire                         mig_rst_x,
-
-     input wire ui_clk,
-     input wire ui_rst,
-     input wire init_calib_complete,
-     
-     output wire [3:0] s_axi_awid,
-     output wire [APP_ADDR_WIDTH-1:0] s_axi_awaddr,
-     output wire [7:0] s_axi_awlen,
-     output wire [2:0] s_axi_awsize,
-     output wire [1:0] s_axi_awburst,
-     output wire [0:0] s_axi_awlock,
-     output wire [3:0] s_axi_awcache,
-     output wire [2:0] s_axi_awprot,
-     output wire [3:0] s_axi_awqos,
-     output wire s_axi_awvalid,
-     input wire s_axi_awready,
-     
-     output wire [APP_DATA_WIDTH-1:0] s_axi_wdata,
-     output wire [APP_MASK_WIDTH-1:0] s_axi_wstrb,
-     output wire s_axi_wlast,
-     output wire s_axi_wvalid,
-     input wire s_axi_wready,
-     
-     input wire [3:0] s_axi_bid,
-     input wire [1:0] s_axi_bresp,
-     input wire s_axi_bvalid,
-     output wire s_axi_bready,
-     
-     output wire [3:0] s_axi_arid,
-     output wire [APP_ADDR_WIDTH-1:0] s_axi_araddr,
-     output wire [7:0] s_axi_arlen,
-     output wire [2:0] s_axi_arsize,
-     output wire [1:0] s_axi_arburst,
-     output wire [0:0] s_axi_arlock,
-     output wire [3:0] s_axi_arcache,
-     output wire [2:0] s_axi_arprot,
-     output wire [3:0] s_axi_arqos,
-     output wire s_axi_arvalid,
-     input wire s_axi_arready,
-     
-     input wire [3:0] s_axi_rid,
-     input wire [APP_DATA_WIDTH-1:0] s_axi_rdata,
-     input wire [1:0] s_axi_rresp,
-     input wire s_axi_rlast,
-     input wire s_axi_rvalid,
-     output wire s_axi_rready,
-
+`ifdef ARTYA7
+     input  wire                         ref_clk,
+`endif
+     // memory interface ports
+`ifndef ARTYA7
+     inout  wire [DDR2_DQ_WIDTH-1 : 0]   ddr2_dq,
+     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_n,
+     inout  wire [DDR2_DQS_WIDTH-1 : 0]  ddr2_dqs_p,
+     output wire [DDR2_ADDR_WIDTH-1 : 0] ddr2_addr,
+     output wire [DDR2_BA_WIDTH-1 : 0]   ddr2_ba,
+     output wire                         ddr2_ras_n,
+     output wire                         ddr2_cas_n,
+     output wire                         ddr2_we_n,
+     output wire [0:0]                   ddr2_ck_p,
+     output wire [0:0]                   ddr2_ck_n,
+     output wire [0:0]                   ddr2_cke,
+     output wire [0:0]                   ddr2_cs_n,
+     output wire [DDR2_DM_WIDTH-1 : 0]   ddr2_dm,
+     output wire [0:0]                   ddr2_odt,
+`else
+`ifndef GENESYS2
+     inout  wire [DDR3_DQ_WIDTH-1 : 0]   ddr3_dq,
+     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_n,
+     inout  wire [DDR3_DQS_WIDTH-1 : 0]  ddr3_dqs_p,
+     output wire [DDR3_ADDR_WIDTH-1 : 0] ddr3_addr,
+     output wire [DDR3_BA_WIDTH-1 : 0]   ddr3_ba,
+     output wire                         ddr3_ras_n,
+     output wire                         ddr3_cas_n,
+     output wire                         ddr3_we_n,
+     output wire [0:0]                   ddr3_ck_p,
+     output wire [0:0]                   ddr3_ck_n,
+     output wire                         ddr3_reset_n,
+     output wire [0:0]                   ddr3_cke,
+     output wire [0:0]                   ddr3_cs_n,
+     output wire [DDR3_DM_WIDTH-1 : 0]   ddr3_dm,
+     output wire [0:0]                   ddr3_odt,
+`else
+    inout  wire [31:0]  ddr3_dq,
+    inout  wire  [3:0]  ddr3_dqs_n,
+    inout  wire  [3:0]  ddr3_dqs_p,
+    output wire [14:0]  ddr3_addr,
+    output wire  [2:0]  ddr3_ba,
+    output wire         ddr3_ras_n,
+    output wire         ddr3_cas_n,
+    output wire         ddr3_we_n,
+    output wire         ddr3_ck_p,
+    output wire         ddr3_ck_n,
+    output wire         ddr3_reset_n,
+    output wire         ddr3_cke,
+    output wire         ddr3_cs_n,
+    output wire  [3:0]  ddr3_dm,
+    output wire         ddr3_odt,
+`endif
+`endif
      // output clk, rst (active-low)
      output wire                         o_clk,
      output wire                         o_rst_x,
@@ -856,15 +854,6 @@ module DRAM_Wrapper2 #(
 
     reg  [127:0]r_o_data = 0;
     reg         r_o_busy = 0;
-
-    reg  [3:0]  r_mask  = 0;
-    reg  [31:0] r_iaddr = 0;
-    wire [127:0]w_ctrl_data;
-
-    reg  [31:0] r_wdata = 0;
-    reg         r_le = 0;
-    reg         r_we = 0;
-
     always @(posedge o_clk) begin
         r_o_data <= w_ctrl_data;
         r_o_busy <= w_o_busy;
@@ -874,6 +863,14 @@ module DRAM_Wrapper2 #(
     assign o_busy = r_o_busy || r_le || r_we;
 
     /***** select load data by i_ctrl *****/
+
+    reg  [3:0]  r_mask  = 0;
+    reg  [31:0] r_iaddr = 0;
+    wire [127:0]w_ctrl_data;
+
+    reg  [31:0] r_wdata = 0;
+    reg         r_le = 0;
+    reg         r_we = 0;
 
     always @(posedge o_clk) begin
         //if(i_rd_en) begin
@@ -892,53 +889,42 @@ module DRAM_Wrapper2 #(
                // input clk, rst (active-low)
                .mig_clk(mig_clk),
                .mig_rst_x(mig_rst_x),
-
-               .ui_clk(ui_clk),
-               .ui_rst(ui_rst),
-               .init_calib_complete(init_calib_complete),
-     
-               .s_axi_awid(s_axi_awid),
-               .s_axi_awaddr(s_axi_awaddr),
-               .s_axi_awlen(s_axi_awlen),
-               .s_axi_awsize(s_axi_awsize),
-               .s_axi_awburst(s_axi_awburst),
-               .s_axi_awlock(s_axi_awlock),
-               .s_axi_awcache(s_axi_awcache),
-               .s_axi_awprot(s_axi_awprot),
-               .s_axi_awqos(s_axi_awqos),
-               .s_axi_awvalid(s_axi_awvalid),
-               .s_axi_awready(s_axi_awready),
-     
-               .s_axi_wdata(s_axi_wdata),
-               .s_axi_wstrb(s_axi_wstrb),
-               .s_axi_wlast(s_axi_wlast),
-               .s_axi_wvalid(s_axi_wvalid),
-               .s_axi_wready(s_axi_wready),
-     
-               .s_axi_bid(s_axi_bid),
-               .s_axi_bresp(s_axi_bresp),
-               .s_axi_bvalid(s_axi_bvalid),
-               .s_axi_bready(s_axi_bready),
-     
-               .s_axi_arid(s_axi_arid),
-               .s_axi_araddr(s_axi_araddr),
-               .s_axi_arlen(s_axi_arlen),
-               .s_axi_arsize(s_axi_arsize),
-               .s_axi_arburst(s_axi_arburst),
-               .s_axi_arlock(s_axi_arlock),
-               .s_axi_arcache(s_axi_arcache),
-               .s_axi_arprot(s_axi_arprot),
-               .s_axi_arqos(s_axi_arqos),
-               .s_axi_arvalid(s_axi_arvalid),
-               .s_axi_arready(s_axi_arready),
-     
-               .s_axi_rid(s_axi_rid),
-               .s_axi_rdata(s_axi_rdata),
-               .s_axi_rresp(s_axi_rresp),
-               .s_axi_rlast(s_axi_rlast),
-               .s_axi_rvalid(s_axi_rvalid),
-               .s_axi_rready(s_axi_rready),
-
+`ifdef ARTYA7
+               .ref_clk(ref_clk),
+`endif
+               // memory interface ports
+`ifndef ARTYA7
+               .ddr2_dq(ddr2_dq),
+               .ddr2_dqs_n(ddr2_dqs_n),
+               .ddr2_dqs_p(ddr2_dqs_p),
+               .ddr2_addr(ddr2_addr),
+               .ddr2_ba(ddr2_ba),
+               .ddr2_ras_n(ddr2_ras_n),
+               .ddr2_cas_n(ddr2_cas_n),
+               .ddr2_we_n(ddr2_we_n),
+               .ddr2_ck_p(ddr2_ck_p),
+               .ddr2_ck_n(ddr2_ck_n),
+               .ddr2_cke(ddr2_cke),
+               .ddr2_cs_n(ddr2_cs_n),
+               .ddr2_dm(ddr2_dm),
+               .ddr2_odt(ddr2_odt),
+`else
+               .ddr3_dq(ddr3_dq),
+               .ddr3_dqs_n(ddr3_dqs_n),
+               .ddr3_dqs_p(ddr3_dqs_p),
+               .ddr3_addr(ddr3_addr),
+               .ddr3_ba(ddr3_ba),
+               .ddr3_ras_n(ddr3_ras_n),
+               .ddr3_cas_n(ddr3_cas_n),
+               .ddr3_we_n(ddr3_we_n),
+               .ddr3_ck_p(ddr3_ck_p),
+               .ddr3_ck_n(ddr3_ck_n),
+               .ddr3_reset_n(ddr3_reset_n),
+               .ddr3_cke(ddr3_cke),
+               .ddr3_cs_n(ddr3_cs_n),
+               .ddr3_dm(ddr3_dm),
+               .ddr3_odt(ddr3_odt),
+`endif
                // output clk, rst (active-low)
                .o_clk(o_clk),
                .o_rst_x(o_rst_x),

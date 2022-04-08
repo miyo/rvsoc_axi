@@ -1,10 +1,10 @@
 // Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
-// Tool Version: Vivado v.2019.2 (lin64) Build 2700185 Thu Oct 24 18:45:48 MDT 2019
-// Date        : Thu Apr  7 23:48:22 2022
-// Host        : qdev running 64-bit Ubuntu 18.04.6 LTS
+// Tool Version: Vivado v.2019.2.1 (lin64) Build 2729669 Thu Dec  5 04:48:12 MST 2019
+// Date        : Thu Mar  3 21:09:09 2022
+// Host        : tama running 64-bit Ubuntu 20.04.4 LTS
 // Command     : write_verilog -force -mode funcsim
-//               /import/home/miyo/FiC/rvsoc_axi/arty35t.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0_sim_netlist.v
+//               /home/miyo/Desktop/rvsoc/rvsoc_axi/arty35t.srcs/sources_1/ip/clk_wiz_0/clk_wiz_0_sim_netlist.v
 // Design      : clk_wiz_0
 // Purpose     : This verilog netlist is a functional simulation representation of the design and should not be modified
 //               or synthesized. This netlist cannot be used for SDF annotated simulation.
