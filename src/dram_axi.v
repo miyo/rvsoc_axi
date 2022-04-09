@@ -53,9 +53,6 @@ module DRAMController_AXI #(
      input wire s_axi_rvalid,
      output wire s_axi_rready,
 
-     // output clk, rst (active-low)
-     output wire                         o_clk,
-     output wire                         o_rst_x,
      // user interface ports
      (* mark_debug *) input  wire                         i_rd_en,
      (* mark_debug *) input  wire                         i_wr_en,
@@ -93,9 +90,6 @@ module DRAMController_AXI #(
 `else
     reg  [APP_MASK_WIDTH-1 : 0] data_mask = 0;
 `endif
-
-    assign o_clk = ui_clk;
-    assign o_rst_x = ~ui_rst;
 
     assign o_init_calib_complete = init_calib_complete;
 
