@@ -1,10 +1,10 @@
 `default_nettype none
 
 module DRAMController_AXI #(
-                        parameter APP_ADDR_WIDTH  = 28,
-                        parameter APP_CMD_WIDTH   = 3,
-                        parameter APP_DATA_WIDTH  = 128,
-                        parameter APP_MASK_WIDTH  = 16)
+     parameter APP_ADDR_WIDTH  = 28,
+     parameter APP_CMD_WIDTH   = 3,
+     parameter APP_DATA_WIDTH  = 128,
+     parameter APP_MASK_WIDTH  = 16)
     (
 
      input wire ui_clk,
@@ -64,10 +64,11 @@ module DRAMController_AXI #(
      (* mark_debug *) output wire                         o_ready,
      (* mark_debug *) output wire                         o_wdf_ready,
 `ifndef ARTYA7
-     input  wire [3:0]                   i_mask);
+     input  wire [3:0]                   i_mask
 `else
-     (* mark_debug *) input  wire [APP_MASK_WIDTH-1 : 0]  i_mask);
+     (* mark_debug *) input  wire [APP_MASK_WIDTH-1 : 0]  i_mask
 `endif
+     );
 
     localparam STATE_CALIB           = 3'b000;
     localparam STATE_IDLE            = 3'b001;
@@ -80,8 +81,6 @@ module DRAMController_AXI #(
 
     reg                         app_rdy;
     reg                         app_wdf_rdy;
-
-
 
     (* mark_debug *) reg  [2:0]                  state;
 
@@ -198,4 +197,3 @@ module DRAMController_AXI #(
 endmodule
 
 `default_nettype wire
-

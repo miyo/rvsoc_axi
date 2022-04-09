@@ -2,27 +2,28 @@
 
 `include "define.vh"
 
-module artya7#(
-               parameter APP_ADDR_WIDTH  = 28,
-               parameter APP_CMD_WIDTH   = 3,
-               parameter APP_DATA_WIDTH  = 128,  // Note
-               parameter APP_MASK_WIDTH  = 16)
+module genesys2#(
+		 parameter APP_ADDR_WIDTH  = 28,
+		 parameter APP_CMD_WIDTH   = 3,
+		 parameter APP_DATA_WIDTH  = 128,  // Note
+		 parameter APP_MASK_WIDTH  = 16)
     (
-     input  wire        CLK,
+     input  wire        CLK_P,
+     input  wire        CLK_N,
      output wire        core_clk_div2_out,
      input  wire        w_rxd,
      output wire        w_txd,
-
+     
      output wire  [3:0] w_ledx,
     
      output wire        w_led1_B,
      output wire        w_led1_G,
      output wire        w_led1_R,
     
-     inout  wire [15:0] ddr3_dq,    ///// for DRAM
-     inout  wire  [1:0] ddr3_dqs_n, //
-     inout  wire  [1:0] ddr3_dqs_p, //
-     output wire [13:0] ddr3_addr,  //
+     inout  wire [31:0] ddr3_dq,    ///// for DRAM
+     inout  wire  [3:0] ddr3_dqs_n, //
+     inout  wire  [3:0] ddr3_dqs_p, //
+     output wire [14:0] ddr3_addr,  //
      output wire  [2:0] ddr3_ba,    //
      output wire        ddr3_ras_n, //
      output wire        ddr3_cas_n, //
@@ -32,7 +33,7 @@ module artya7#(
      output wire        ddr3_reset_n, //
      output wire  [0:0] ddr3_cke,   //
      output wire  [0:0] ddr3_cs_n,  //
-     output wire  [1:0] ddr3_dm,    //
+     output wire  [3:0] ddr3_dm,    //
      output wire  [0:0] ddr3_odt    //
      );
     
@@ -87,6 +88,8 @@ module artya7#(
     wire w_locked;
     wire RST_X_IN = 1;
 
+    wire CLK;
+    IBUFDS ibufds_i(.O(CLK), .I(CLK_P), .IB(CLK_N));
     clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
 
     wire ui_gen_clk;
@@ -122,7 +125,6 @@ module artya7#(
 
     wire [15:0] w_led;
     assign w_ledx = w_led[3:0];//w_insn_data[3:0];
-
 
     m_main#(.APP_ADDR_WIDTH(APP_ADDR_WIDTH),
             .APP_CMD_WIDTH(APP_CMD_WIDTH),
@@ -196,7 +198,7 @@ module artya7#(
 
     mig_7series_0_axi
       u_mig_7series_0_axi (
-
+      
 			   // Memory interface ports
 			   .ddr3_addr                      (ddr3_addr),  // output [13:0]		ddr3_addr
 			   .ddr3_ba                        (ddr3_ba),  // output [2:0]		ddr3_ba

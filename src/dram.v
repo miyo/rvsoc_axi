@@ -8,29 +8,12 @@
 
 /**************************************************************************************************/
 /*** For Nexys A7 board ***************************************************************************/
-module DRAM_con_witout_cache #(
-`ifndef ARTYA7
-              parameter DDR2_DQ_WIDTH   = 16,
-              parameter DDR2_DQS_WIDTH  = 2,
-              parameter DDR2_ADDR_WIDTH = 13,
-              parameter DDR2_BA_WIDTH   = 3,
-              parameter DDR2_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 27,
-`else
-              parameter DDR3_DQ_WIDTH   = 16,
-              parameter DDR3_DQS_WIDTH  = 2,
-              parameter DDR3_ADDR_WIDTH = 14,
-              parameter DDR3_BA_WIDTH   = 3,
-              parameter DDR3_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 28,
-`endif
-              parameter APP_CMD_WIDTH   = 3,
-              parameter APP_DATA_WIDTH  = 128,  // Note
-              parameter APP_MASK_WIDTH  = 16)
+module DRAM_con_without_cache#(
+     parameter APP_ADDR_WIDTH  = 28,
+     parameter APP_CMD_WIDTH   = 3,
+     parameter APP_DATA_WIDTH  = 128,  // Note
+     parameter APP_MASK_WIDTH  = 16)
     (
-     // input clk, rst (active-low)
-     input  wire                         mig_clk,
-     input  wire                         mig_rst_x,
 
      input wire ui_clk,
      input wire ui_rst,
@@ -78,9 +61,8 @@ module DRAM_con_witout_cache #(
      input wire s_axi_rvalid,
      output wire s_axi_rready,
 
-     // output clk, rst (active-low)
-     input wire                         clk,
-     input wire                         rst_x,
+     input wire                         core_clk,
+     input wire                         core_rst_x,
      // user interface ports
      (* mark_debug *) input  wire                         i_rd_en,
      (* mark_debug *) input  wire                         i_wr_en,
@@ -89,10 +71,8 @@ module DRAM_con_witout_cache #(
      output wire                         o_init_calib_complete,
      output wire [127:0]                 o_data,
      output wire                         o_busy,
-     input  wire [3:0]                   i_mask);
-
-//    wire                        clk;
-//    wire                        rst_x;
+     input  wire [3:0]                   i_mask
+     );
 
     wire                        dram_init_calib_complete;
     wire                        dram_ren;
@@ -135,37 +115,10 @@ module DRAM_con_witout_cache #(
     localparam STATE_IDLE  = 2'b01;
     localparam STATE_WRITE = 2'b10;
     localparam STATE_READ  = 2'b11;
-/*
-    wire locked;
-    wire rst_x_async;
-    reg  rst_x_sync1;
-    reg  rst_x_sync2;
 
-    clk_wiz_1 clkgen1 (
-                       .clk_in1(ui_clk),
-                       .resetn(~ui_rst),
-                       .clk_out1(clk),
-                       .locked(locked));
-
-    assign rst_x_async = ~ui_rst & locked;
-    assign rst_x = rst_x_sync2;
-
-    always @(posedge clk or negedge rst_x_async) begin
-        if (!rst_x_async) begin
-            rst_x_sync1 <= 1'b0;
-            rst_x_sync2 <= 1'b0;
-        end else begin
-            rst_x_sync1 <= 1'b1;
-            rst_x_sync2 <= rst_x_sync1;
-        end
-    end
-
-    assign o_clk = clk;
-    assign o_rst_x = rst_x;
-*/
     // synchronize the calibration status signal: MIG -> MIPS core
-    always @(posedge clk) begin
-        if (!rst_x) begin
+    always @(posedge core_clk) begin
+        if (!core_rst_x) begin
             dram_init_calib_complete_sync1 <= 1'b0;
             dram_init_calib_complete_sync2 <= 1'b0;
         end else begin
@@ -181,9 +134,9 @@ module DRAM_con_witout_cache #(
                 .DATA_WIDTH(69),
                 .ADDR_WIDTH(2))
     afifo1 (
-            .wclk(clk),
+            .wclk(core_clk),
             .rclk(ui_clk),
-            .i_wrst_x(rst_x),
+            .i_wrst_x(core_rst_x),
             .i_rrst_x(~ui_rst),
             .i_wen(wen_afifo1),
             .i_data(din_afifo1),
@@ -201,9 +154,9 @@ module DRAM_con_witout_cache #(
                 .ADDR_WIDTH(2))
     afifo2 (
             .wclk(ui_clk),
-            .rclk(clk),
+            .rclk(core_clk),
             .i_wrst_x(~ui_rst),
-            .i_rrst_x(rst_x),
+            .i_rrst_x(core_rst_x),
             .i_wen(wen_afifo2),
             .i_data(din_afifo2),
             .i_ren(ren_afifo2),
@@ -227,10 +180,10 @@ module DRAM_con_witout_cache #(
 
 
     DRAMController_AXI #(
-                     .APP_ADDR_WIDTH(APP_ADDR_WIDTH),
-                     .APP_CMD_WIDTH(APP_CMD_WIDTH),
-                     .APP_DATA_WIDTH(APP_DATA_WIDTH),
-                     .APP_MASK_WIDTH(APP_MASK_WIDTH))
+			 .APP_ADDR_WIDTH(APP_ADDR_WIDTH),
+			 .APP_CMD_WIDTH(APP_CMD_WIDTH),
+			 .APP_DATA_WIDTH(APP_DATA_WIDTH),
+			 .APP_MASK_WIDTH(APP_MASK_WIDTH))
     dc (
 	.ui_clk(ui_clk),
 	.ui_rst(ui_rst),
@@ -299,8 +252,8 @@ module DRAM_con_witout_cache #(
 `endif
 
     // state machine
-    always @(negedge clk) begin
-        if (!rst_x) begin
+    always @(negedge core_clk) begin
+        if (!core_rst_x) begin
             state <= STATE_CALIB;
             wen_afifo1 <= 0;
             din_afifo1 <= 0;

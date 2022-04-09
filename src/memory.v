@@ -12,29 +12,12 @@
 /**** DRAM Controller with Cache                                                               ****/
 /**************************************************************************************************/
 module DRAM_conRV#(
-`ifndef ARTYA7
-              parameter DDR2_DQ_WIDTH   = 16,
-              parameter DDR2_DQS_WIDTH  = 2,
-              parameter DDR2_ADDR_WIDTH = 13,
-              parameter DDR2_BA_WIDTH   = 3,
-              parameter DDR2_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 27,
-`else
-              parameter DDR3_DQ_WIDTH   = 16,
-              parameter DDR3_DQS_WIDTH  = 2,
-              parameter DDR3_ADDR_WIDTH = 14,
-              parameter DDR3_BA_WIDTH   = 3,
-              parameter DDR3_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 28,
-`endif
-              parameter APP_CMD_WIDTH   = 3,
-              parameter APP_DATA_WIDTH  = 128,  // Note
-              parameter APP_MASK_WIDTH  = 16)
+		   parameter APP_ADDR_WIDTH  = 28,
+		   parameter APP_CMD_WIDTH   = 3,
+		   parameter APP_DATA_WIDTH  = 128,  // Note
+		   parameter APP_MASK_WIDTH  = 16)
     (
      // input clk, rst (active-low)
-     input  wire                         mig_clk,
-     input  wire                         mig_rst_x,
-
      input wire ui_clk,
      input wire ui_rst,
      input wire init_calib_complete,
@@ -82,8 +65,8 @@ module DRAM_conRV#(
      output wire s_axi_rready,
 
      // output clk, rst (active-low)
-     input wire                         o_clk,
-     input wire                         o_rst_x,
+     input wire                         core_clk,
+     input wire                         core_rst_x,
      // user interface ports
      (* mark_debug *) input  wire                         i_rd_en,
      (* mark_debug *) input  wire                         i_wr_en,
@@ -92,7 +75,8 @@ module DRAM_conRV#(
      output wire                         o_init_calib_complete,
      output wire [31:0]                  o_data,
      output wire                         o_busy,
-     input  wire [2:0]                   i_ctrl);
+     input  wire [2:0]                   i_ctrl
+     );
 
     /***** store output data to registers in posedge clock cycle *****/
 
@@ -103,7 +87,7 @@ module DRAM_conRV#(
     reg  [31:0] r_wdata = 0;
     reg         r_rd    = 0;
 
-    always @(posedge o_clk) begin
+    always @(posedge core_clk) begin
         if((i_rd_en || i_wr_en) && !o_busy) begin
             r_ctrl  <= i_ctrl;
             r_addr  <= i_addr;
@@ -133,99 +117,83 @@ module DRAM_conRV#(
     wire w_busy;
     assign o_busy = w_busy | r_we | r_rd;
 
-    DRAM_conX dram (
-               // input clk, rst (active-low)
-               .mig_clk(mig_clk),
-               .mig_rst_x(mig_rst_x),
+    DRAM_conX#(.APP_ADDR_WIDTH(APP_ADDR_WIDTH),
+	       .APP_CMD_WIDTH(APP_CMD_WIDTH),
+	       .APP_DATA_WIDTH(APP_DATA_WIDTH),
+	       .APP_MASK_WIDTH(APP_MASK_WIDTH))
+    dram (
+          // input clk, rst (active-low)
+	  .ui_clk(ui_clk),
+	  .ui_rst(ui_rst),
+	  .init_calib_complete(init_calib_complete),
 
-	    .ui_clk(ui_clk),
-	    .ui_rst(ui_rst),
-	    .init_calib_complete(init_calib_complete),
+	  .s_axi_awid                     (s_axi_awid),
+	  .s_axi_awaddr                   (s_axi_awaddr),
+	  .s_axi_awlen                    (s_axi_awlen),
+	  .s_axi_awsize                   (s_axi_awsize),
+	  .s_axi_awburst                  (s_axi_awburst),
+	  .s_axi_awlock                   (s_axi_awlock),
+	  .s_axi_awcache                  (s_axi_awcache),
+	  .s_axi_awprot                   (s_axi_awprot),
+	  .s_axi_awqos                    (s_axi_awqos),
+	  .s_axi_awvalid                  (s_axi_awvalid),
+	  .s_axi_awready                  (s_axi_awready),
+	  // Slave Interface Write Data Ports
+	  .s_axi_wdata                    (s_axi_wdata),
+	  .s_axi_wstrb                    (s_axi_wstrb),
+	  .s_axi_wlast                    (s_axi_wlast),
+	  .s_axi_wvalid                   (s_axi_wvalid),
+	  .s_axi_wready                   (s_axi_wready),
+	  // Slave Interface Write Response Ports
+	  .s_axi_bid                      (s_axi_bid),
+	  .s_axi_bresp                    (s_axi_bresp),
+	  .s_axi_bvalid                   (s_axi_bvalid),
+	  .s_axi_bready                   (s_axi_bready),
+	  // Slave Interface Read Address Ports
+	  .s_axi_arid                     (s_axi_arid),
+	  .s_axi_araddr                   (s_axi_araddr),
+	  .s_axi_arlen                    (s_axi_arlen),
+	  .s_axi_arsize                   (s_axi_arsize),
+	  .s_axi_arburst                  (s_axi_arburst),
+	  .s_axi_arlock                   (s_axi_arlock),
+	  .s_axi_arcache                  (s_axi_arcache),
+	  .s_axi_arprot                   (s_axi_arprot),
+	  .s_axi_arqos                    (s_axi_arqos),
+	  .s_axi_arvalid                  (s_axi_arvalid),
+	  .s_axi_arready                  (s_axi_arready),
+	  // Slave Interface Read Data Ports
+	  .s_axi_rid                      (s_axi_rid),
+	  .s_axi_rdata                    (s_axi_rdata),
+	  .s_axi_rresp                    (s_axi_rresp),
+	  .s_axi_rlast                    (s_axi_rlast),
+	  .s_axi_rvalid                   (s_axi_rvalid),
+	  .s_axi_rready                   (s_axi_rready),
 
-	.s_axi_awid                     (s_axi_awid),
-	.s_axi_awaddr                   (s_axi_awaddr),
-	.s_axi_awlen                    (s_axi_awlen),
-	.s_axi_awsize                   (s_axi_awsize),
-	.s_axi_awburst                  (s_axi_awburst),
-	.s_axi_awlock                   (s_axi_awlock),
-	.s_axi_awcache                  (s_axi_awcache),
-	.s_axi_awprot                   (s_axi_awprot),
-	.s_axi_awqos                    (s_axi_awqos),
-	.s_axi_awvalid                  (s_axi_awvalid),
-	.s_axi_awready                  (s_axi_awready),
-	// Slave Interface Write Data Ports
-	.s_axi_wdata                    (s_axi_wdata),
-	.s_axi_wstrb                    (s_axi_wstrb),
-	.s_axi_wlast                    (s_axi_wlast),
-	.s_axi_wvalid                   (s_axi_wvalid),
-	.s_axi_wready                   (s_axi_wready),
-	// Slave Interface Write Response Ports
-	.s_axi_bid                      (s_axi_bid),
-	.s_axi_bresp                    (s_axi_bresp),
-	.s_axi_bvalid                   (s_axi_bvalid),
-	.s_axi_bready                   (s_axi_bready),
-	// Slave Interface Read Address Ports
-	.s_axi_arid                     (s_axi_arid),
-	.s_axi_araddr                   (s_axi_araddr),
-	.s_axi_arlen                    (s_axi_arlen),
-	.s_axi_arsize                   (s_axi_arsize),
-	.s_axi_arburst                  (s_axi_arburst),
-	.s_axi_arlock                   (s_axi_arlock),
-	.s_axi_arcache                  (s_axi_arcache),
-	.s_axi_arprot                   (s_axi_arprot),
-	.s_axi_arqos                    (s_axi_arqos),
-	.s_axi_arvalid                  (s_axi_arvalid),
-	.s_axi_arready                  (s_axi_arready),
-	// Slave Interface Read Data Ports
-	.s_axi_rid                      (s_axi_rid),
-	.s_axi_rdata                    (s_axi_rdata),
-	.s_axi_rresp                    (s_axi_rresp),
-	.s_axi_rlast                    (s_axi_rlast),
-	.s_axi_rvalid                   (s_axi_rvalid),
-	.s_axi_rready                   (s_axi_rready),
-
-               // output clk, rst (active-low)
-               .o_clk(o_clk),
-               .o_rst_x(o_rst_x),
-               // user interface ports
-               .i_rd_en(r_rd),
-               .i_wr_en(r_we),
-               .i_addr(r_addr),
-               .i_data(w_wdata),
-               .o_init_calib_complete(o_init_calib_complete),
-               .o_data(w_dram_odata),
-               .o_busy(w_busy),
-               .i_mask(~w_mask)
-               );    
+          // output clk, rst (active-low)
+          .core_clk(core_clk),
+          .core_rst_x(core_rst_x),
+          // user interface ports
+          .i_rd_en(r_rd),
+          .i_wr_en(r_we),
+          .i_addr(r_addr),
+          .i_data(w_wdata),
+          .o_init_calib_complete(o_init_calib_complete),
+          .o_data(w_dram_odata),
+          .o_busy(w_busy),
+          .i_mask(~w_mask)
+          );    
 
 endmodule
 /**************************************************************************************************/
 /**** DRAM Controller with Cache                                                               ****/
 /**************************************************************************************************/
 module DRAM_conX#(
-`ifndef ARTYA7
-              parameter DDR2_DQ_WIDTH   = 16,
-              parameter DDR2_DQS_WIDTH  = 2,
-              parameter DDR2_ADDR_WIDTH = 13,
-              parameter DDR2_BA_WIDTH   = 3,
-              parameter DDR2_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 27,
-`else
-              parameter DDR3_DQ_WIDTH   = 16,
-              parameter DDR3_DQS_WIDTH  = 2,
-              parameter DDR3_ADDR_WIDTH = 14,
-              parameter DDR3_BA_WIDTH   = 3,
-              parameter DDR3_DM_WIDTH   = 2,
               parameter APP_ADDR_WIDTH  = 28,
-`endif
               parameter APP_CMD_WIDTH   = 3,
               parameter APP_DATA_WIDTH  = 128,  // Note
               parameter APP_MASK_WIDTH  = 16)
     (
      // input clk, rst (active-low)
-     input  wire                         mig_clk,
-     input  wire                         mig_rst_x,
-
      input wire ui_clk,
      input wire ui_rst,
      input wire init_calib_complete,
@@ -273,8 +241,8 @@ module DRAM_conX#(
      output wire s_axi_rready,
 
      // output clk, rst (active-low)
-     input wire                         o_clk,
-     input wire                         o_rst_x,
+     input wire                         core_clk,
+     input wire                         core_rst_x,
      // user interface ports
      input  wire                         i_rd_en,
      (* mark_debug *) input  wire                         i_wr_en,
@@ -307,7 +275,7 @@ module DRAM_conX#(
     wire[127:0] c_idata = w_dram_odata;
     wire[127:0] c_odata;
 
-    always@(posedge o_clk) begin
+    always@(posedge core_clk) begin
         if(r_cache_state == 2'b01 && !c_oe) begin
             r_cache_state <= 2'b10;
         end
@@ -326,7 +294,7 @@ module DRAM_conX#(
         end
     end
 
-    m_dram_cache#(28,128,`CACHE_SIZE/16) cache(o_clk, 1'b1, 1'b0, c_clr, c_we,
+    m_dram_cache#(28,128,`CACHE_SIZE/16) cache(core_clk, 1'b1, 1'b0, c_clr, c_we,
                                 c_addr[31:4], c_idata, c_odata, c_oe);
 
     assign w_dram_le = (r_cache_state == 2'b01 && !c_oe);
@@ -334,97 +302,81 @@ module DRAM_conX#(
 
     assign o_data = r_o_data;
     
-    DRAM_Wrapper2 dram (
-               // input clk, rst (active-low)
-               .mig_clk(mig_clk),
-               .mig_rst_x(mig_rst_x),
+    DRAM_Wrapper2#(.APP_ADDR_WIDTH(APP_ADDR_WIDTH),
+		   .APP_CMD_WIDTH(APP_CMD_WIDTH),
+		   .APP_DATA_WIDTH(APP_DATA_WIDTH),
+		   .APP_MASK_WIDTH(APP_MASK_WIDTH))
+    dram (
+          // input clk, rst (active-low)
+	  .ui_clk(ui_clk),
+	  .ui_rst(ui_rst),
+	  .init_calib_complete(init_calib_complete),
 
-	.ui_clk(ui_clk),
-	.ui_rst(ui_rst),
-	.init_calib_complete(init_calib_complete),
+	  .s_axi_awid                     (s_axi_awid),
+	  .s_axi_awaddr                   (s_axi_awaddr),
+	  .s_axi_awlen                    (s_axi_awlen),
+	  .s_axi_awsize                   (s_axi_awsize),
+	  .s_axi_awburst                  (s_axi_awburst),
+	  .s_axi_awlock                   (s_axi_awlock),
+	  .s_axi_awcache                  (s_axi_awcache),
+	  .s_axi_awprot                   (s_axi_awprot),
+	  .s_axi_awqos                    (s_axi_awqos),
+	  .s_axi_awvalid                  (s_axi_awvalid),
+	  .s_axi_awready                  (s_axi_awready),
+	  // Slave Interface Write Data Ports
+	  .s_axi_wdata                    (s_axi_wdata),
+	  .s_axi_wstrb                    (s_axi_wstrb),
+	  .s_axi_wlast                    (s_axi_wlast),
+	  .s_axi_wvalid                   (s_axi_wvalid),
+	  .s_axi_wready                   (s_axi_wready),
+	  // Slave Interface Write Response Ports
+	  .s_axi_bid                      (s_axi_bid),
+	  .s_axi_bresp                    (s_axi_bresp),
+	  .s_axi_bvalid                   (s_axi_bvalid),
+	  .s_axi_bready                   (s_axi_bready),
+	  // Slave Interface Read Address Ports
+	  .s_axi_arid                     (s_axi_arid),
+	  .s_axi_araddr                   (s_axi_araddr),
+	  .s_axi_arlen                    (s_axi_arlen),
+	  .s_axi_arsize                   (s_axi_arsize),
+	  .s_axi_arburst                  (s_axi_arburst),
+	  .s_axi_arlock                   (s_axi_arlock),
+	  .s_axi_arcache                  (s_axi_arcache),
+	  .s_axi_arprot                   (s_axi_arprot),
+	  .s_axi_arqos                    (s_axi_arqos),
+	  .s_axi_arvalid                  (s_axi_arvalid),
+	  .s_axi_arready                  (s_axi_arready),
+	  // Slave Interface Read Data Ports
+	  .s_axi_rid                      (s_axi_rid),
+	  .s_axi_rdata                    (s_axi_rdata),
+	  .s_axi_rresp                    (s_axi_rresp),
+	  .s_axi_rlast                    (s_axi_rlast),
+	  .s_axi_rvalid                   (s_axi_rvalid),
+	  .s_axi_rready                   (s_axi_rready),
 
-	.s_axi_awid                     (s_axi_awid),
-	.s_axi_awaddr                   (s_axi_awaddr),
-	.s_axi_awlen                    (s_axi_awlen),
-	.s_axi_awsize                   (s_axi_awsize),
-	.s_axi_awburst                  (s_axi_awburst),
-	.s_axi_awlock                   (s_axi_awlock),
-	.s_axi_awcache                  (s_axi_awcache),
-	.s_axi_awprot                   (s_axi_awprot),
-	.s_axi_awqos                    (s_axi_awqos),
-	.s_axi_awvalid                  (s_axi_awvalid),
-	.s_axi_awready                  (s_axi_awready),
-	// Slave Interface Write Data Ports
-	.s_axi_wdata                    (s_axi_wdata),
-	.s_axi_wstrb                    (s_axi_wstrb),
-	.s_axi_wlast                    (s_axi_wlast),
-	.s_axi_wvalid                   (s_axi_wvalid),
-	.s_axi_wready                   (s_axi_wready),
-	// Slave Interface Write Response Ports
-	.s_axi_bid                      (s_axi_bid),
-	.s_axi_bresp                    (s_axi_bresp),
-	.s_axi_bvalid                   (s_axi_bvalid),
-	.s_axi_bready                   (s_axi_bready),
-	// Slave Interface Read Address Ports
-	.s_axi_arid                     (s_axi_arid),
-	.s_axi_araddr                   (s_axi_araddr),
-	.s_axi_arlen                    (s_axi_arlen),
-	.s_axi_arsize                   (s_axi_arsize),
-	.s_axi_arburst                  (s_axi_arburst),
-	.s_axi_arlock                   (s_axi_arlock),
-	.s_axi_arcache                  (s_axi_arcache),
-	.s_axi_arprot                   (s_axi_arprot),
-	.s_axi_arqos                    (s_axi_arqos),
-	.s_axi_arvalid                  (s_axi_arvalid),
-	.s_axi_arready                  (s_axi_arready),
-	// Slave Interface Read Data Ports
-	.s_axi_rid                      (s_axi_rid),
-	.s_axi_rdata                    (s_axi_rdata),
-	.s_axi_rresp                    (s_axi_rresp),
-	.s_axi_rlast                    (s_axi_rlast),
-	.s_axi_rvalid                   (s_axi_rvalid),
-	.s_axi_rready                   (s_axi_rready),
-
-               // output clk, rst (active-low)
-               .o_clk(o_clk),
-               .o_rst_x(o_rst_x),
-               // user interface ports
-               .i_rd_en(w_dram_le),
-               .i_wr_en(i_wr_en),
-               .i_addr(w_dram_addr),
-               .i_data(i_data),
-               .o_init_calib_complete(o_init_calib_complete),
-               .o_data(w_dram_odata),
-               .o_busy(w_dram_stall),
-               .i_mask(i_mask)
-               );    
+          // output clk, rst (active-low)
+          .core_clk(core_clk),
+          .core_rst_x(core_rst_x),
+          // user interface ports
+          .i_rd_en(w_dram_le),
+          .i_wr_en(i_wr_en),
+          .i_addr(w_dram_addr),
+          .i_data(i_data),
+          .o_init_calib_complete(o_init_calib_complete),
+          .o_data(w_dram_odata),
+          .o_busy(w_dram_stall),
+          .i_mask(i_mask)
+          );    
 
 endmodule
 /**************************************************************************************************/
 /**************************************************************************************************/
 module DRAM_Wrapper2 #(
-`ifndef ARTYA7
-              parameter DDR2_DQ_WIDTH   = 16,
-              parameter DDR2_DQS_WIDTH  = 2,
-              parameter DDR2_ADDR_WIDTH = 13,
-              parameter DDR2_BA_WIDTH   = 3,
-              parameter DDR2_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 27,
-`else
-              parameter DDR3_DQ_WIDTH   = 16,
-              parameter DDR3_DQS_WIDTH  = 2,
-              parameter DDR3_ADDR_WIDTH = 14,
-              parameter DDR3_BA_WIDTH   = 3,
-              parameter DDR3_DM_WIDTH   = 2,
               parameter APP_ADDR_WIDTH  = 28,
-`endif
               parameter APP_CMD_WIDTH   = 3,
               parameter APP_DATA_WIDTH  = 128,  // Note
               parameter APP_MASK_WIDTH  = 16)
     (
-     // input clk, rst (active-low)
-     input  wire                         mig_clk,
-     input  wire                         mig_rst_x,
 
      input wire ui_clk,
      input wire ui_rst,
@@ -473,8 +425,8 @@ module DRAM_Wrapper2 #(
      output wire s_axi_rready,
 
      // output clk, rst (active-low)
-     input wire                         o_clk,
-     input wire                         o_rst_x,
+     input wire                         core_clk,
+     input wire                         core_rst_x,
      // user interface ports
      input  wire                         i_rd_en,
      input  wire                         i_wr_en,
@@ -492,7 +444,7 @@ module DRAM_Wrapper2 #(
 
     reg  [127:0]r_o_data = 0;
     reg         r_o_busy = 0;
-    always @(posedge o_clk) begin
+    always @(posedge core_clk) begin
         r_o_data <= w_ctrl_data;
         r_o_busy <= w_o_busy;
     end
@@ -510,7 +462,7 @@ module DRAM_Wrapper2 #(
     reg         r_le = 0;
     reg         r_we = 0;
 
-    always @(posedge o_clk) begin
+    always @(posedge core_clk) begin
         //if(i_rd_en) begin
         r_mask  <= i_mask;
         r_iaddr <= i_addr;
@@ -523,70 +475,70 @@ module DRAM_Wrapper2 #(
 
     wire [31:0] w_ctrl_iaddr = (r_we) ? {r_iaddr[31:2],2'b0} : {r_iaddr[31:4],4'b0};
 
-    DRAM_con_witout_cache dram_con_witout_cache (
-               // input clk, rst (active-low)
-               .mig_clk(mig_clk),
-               .mig_rst_x(mig_rst_x),
+    DRAM_con_without_cache#(.APP_ADDR_WIDTH(APP_ADDR_WIDTH),
+			    .APP_CMD_WIDTH(APP_CMD_WIDTH),
+			    .APP_DATA_WIDTH(APP_DATA_WIDTH),
+			    .APP_MASK_WIDTH(APP_MASK_WIDTH))
+    dram_con_without_cache (
+			    .ui_clk(ui_clk),
+			    .ui_rst(ui_rst),
+			    .init_calib_complete(init_calib_complete),
 
-	.ui_clk(ui_clk),
-	.ui_rst(ui_rst),
-	.init_calib_complete(init_calib_complete),
+			    .s_axi_awid                     (s_axi_awid),
+			    .s_axi_awaddr                   (s_axi_awaddr),
+			    .s_axi_awlen                    (s_axi_awlen),
+			    .s_axi_awsize                   (s_axi_awsize),
+			    .s_axi_awburst                  (s_axi_awburst),
+			    .s_axi_awlock                   (s_axi_awlock),
+			    .s_axi_awcache                  (s_axi_awcache),
+			    .s_axi_awprot                   (s_axi_awprot),
+			    .s_axi_awqos                    (s_axi_awqos),
+			    .s_axi_awvalid                  (s_axi_awvalid),
+			    .s_axi_awready                  (s_axi_awready),
+			    // Slave Interface Write Data Ports
+			    .s_axi_wdata                    (s_axi_wdata),
+			    .s_axi_wstrb                    (s_axi_wstrb),
+			    .s_axi_wlast                    (s_axi_wlast),
+			    .s_axi_wvalid                   (s_axi_wvalid),
+			    .s_axi_wready                   (s_axi_wready),
+			    // Slave Interface Write Response Ports
+			    .s_axi_bid                      (s_axi_bid),
+			    .s_axi_bresp                    (s_axi_bresp),
+			    .s_axi_bvalid                   (s_axi_bvalid),
+			    .s_axi_bready                   (s_axi_bready),
+			    // Slave Interface Read Address Ports
+			    .s_axi_arid                     (s_axi_arid),
+			    .s_axi_araddr                   (s_axi_araddr),
+			    .s_axi_arlen                    (s_axi_arlen),
+			    .s_axi_arsize                   (s_axi_arsize),
+			    .s_axi_arburst                  (s_axi_arburst),
+			    .s_axi_arlock                   (s_axi_arlock),
+			    .s_axi_arcache                  (s_axi_arcache),
+			    .s_axi_arprot                   (s_axi_arprot),
+			    .s_axi_arqos                    (s_axi_arqos),
+			    .s_axi_arvalid                  (s_axi_arvalid),
+			    .s_axi_arready                  (s_axi_arready),
+			    // Slave Interface Read Data Ports
+			    .s_axi_rid                      (s_axi_rid),
+			    .s_axi_rdata                    (s_axi_rdata),
+			    .s_axi_rresp                    (s_axi_rresp),
+			    .s_axi_rlast                    (s_axi_rlast),
+			    .s_axi_rvalid                   (s_axi_rvalid),
+			    .s_axi_rready                   (s_axi_rready),
 
-	.s_axi_awid                     (s_axi_awid),
-	.s_axi_awaddr                   (s_axi_awaddr),
-	.s_axi_awlen                    (s_axi_awlen),
-	.s_axi_awsize                   (s_axi_awsize),
-	.s_axi_awburst                  (s_axi_awburst),
-	.s_axi_awlock                   (s_axi_awlock),
-	.s_axi_awcache                  (s_axi_awcache),
-	.s_axi_awprot                   (s_axi_awprot),
-	.s_axi_awqos                    (s_axi_awqos),
-	.s_axi_awvalid                  (s_axi_awvalid),
-	.s_axi_awready                  (s_axi_awready),
-	// Slave Interface Write Data Ports
-	.s_axi_wdata                    (s_axi_wdata),
-	.s_axi_wstrb                    (s_axi_wstrb),
-	.s_axi_wlast                    (s_axi_wlast),
-	.s_axi_wvalid                   (s_axi_wvalid),
-	.s_axi_wready                   (s_axi_wready),
-	// Slave Interface Write Response Ports
-	.s_axi_bid                      (s_axi_bid),
-	.s_axi_bresp                    (s_axi_bresp),
-	.s_axi_bvalid                   (s_axi_bvalid),
-	.s_axi_bready                   (s_axi_bready),
-	// Slave Interface Read Address Ports
-	.s_axi_arid                     (s_axi_arid),
-	.s_axi_araddr                   (s_axi_araddr),
-	.s_axi_arlen                    (s_axi_arlen),
-	.s_axi_arsize                   (s_axi_arsize),
-	.s_axi_arburst                  (s_axi_arburst),
-	.s_axi_arlock                   (s_axi_arlock),
-	.s_axi_arcache                  (s_axi_arcache),
-	.s_axi_arprot                   (s_axi_arprot),
-	.s_axi_arqos                    (s_axi_arqos),
-	.s_axi_arvalid                  (s_axi_arvalid),
-	.s_axi_arready                  (s_axi_arready),
-	// Slave Interface Read Data Ports
-	.s_axi_rid                      (s_axi_rid),
-	.s_axi_rdata                    (s_axi_rdata),
-	.s_axi_rresp                    (s_axi_rresp),
-	.s_axi_rlast                    (s_axi_rlast),
-	.s_axi_rvalid                   (s_axi_rvalid),
-	.s_axi_rready                   (s_axi_rready),
-
-               // output clk, rst (active-low)
-               .clk(o_clk),
-               .rst_x(o_rst_x),
-               // user interface ports
-               .i_rd_en(r_le),
-               .i_wr_en(r_we),
-               .i_addr(w_ctrl_iaddr),
-               .i_data(r_wdata),
-               .o_init_calib_complete(o_init_calib_complete),
-               .o_data(w_o_data),
-               .o_busy(w_o_busy),
-               .i_mask(r_mask)
-               );
+			    // core clk, rst (active-low)
+			    .core_clk(core_clk),
+			    .core_rst_x(core_rst_x),
+			    // user interface ports
+			    .i_rd_en(r_le),
+			    .i_wr_en(r_we),
+			    .i_addr(w_ctrl_iaddr),
+			    .i_data(r_wdata),
+			    .o_init_calib_complete(o_init_calib_complete),
+			    .o_data(w_o_data),
+			    .o_busy(w_o_busy),
+			    .i_mask(r_mask)
+			    );
 
 endmodule
 /**************************************************************************************************/

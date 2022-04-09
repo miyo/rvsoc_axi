@@ -8,48 +8,26 @@
 
 /**************************************************************************************************/
 module m_main#(
-`ifndef ARTYA7
-              parameter DDR2_DQ_WIDTH   = 16,
-              parameter DDR2_DQS_WIDTH  = 2,
-              parameter DDR2_ADDR_WIDTH = 13,
-              parameter DDR2_BA_WIDTH   = 3,
-              parameter DDR2_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 27,
-`else
-              parameter DDR3_DQ_WIDTH   = 16,
-              parameter DDR3_DQS_WIDTH  = 2,
-              parameter DDR3_ADDR_WIDTH = 14,
-              parameter DDR3_BA_WIDTH   = 3,
-              parameter DDR3_DM_WIDTH   = 2,
-              parameter APP_ADDR_WIDTH  = 28,
-`endif
-              parameter APP_CMD_WIDTH   = 3,
-              parameter APP_DATA_WIDTH  = 128,  // Note
-              parameter APP_MASK_WIDTH  = 16)(
-`ifndef GENESYS2
-              input  wire        CLK,
-`else
-              input  wire        CLK_P,
-              input  wire        CLK_N,
-`endif
-	      output wire        core_clk_div2_out,
-              input  wire        w_rxd,
-              output wire        w_txd,
-`ifndef ARTYA7
-              output wire [15:0] w_led,
-              output reg   [7:0] r_sg,
-              output reg   [7:0] r_an,
-`else
-              output wire  [3:0] w_ledx,
-              //output reg   [7:0] r_sg,
-              //output reg   [7:0] r_an,
-`endif
-              output wire        w_led1_B,
-              output wire        w_led1_G,
-              output wire        w_led1_R,
+               parameter APP_ADDR_WIDTH  = 28,
+               parameter APP_CMD_WIDTH   = 3,
+               parameter APP_DATA_WIDTH  = 128,  // Note
+               parameter APP_MASK_WIDTH  = 16)
+    (
 
-     input wire mig_clk,
-     input wire ref_clk,
+     input  wire        CLK, // board bare clock
+
+     output wire        core_clk_div2_out,
+     input  wire        w_rxd,
+     output wire        w_txd,
+
+     output wire [15:0] w_led,
+     output reg   [7:0] r_sg,
+     output reg   [7:0] r_an,
+
+     output wire        w_led1_B,
+     output wire        w_led1_G,
+     output wire        w_led1_R,
+
      input wire w_locked,
 
      input wire ui_clk,
@@ -100,7 +78,7 @@ module m_main#(
      input wire s_axi_rlast,
      input wire s_axi_rvalid,
      output wire s_axi_rready
-              );
+     );
 
     wire RST_X_IN = 1;
     wire w_btnu = 0;
@@ -109,14 +87,6 @@ module m_main#(
     wire w_btnr = 0;
     wire w_btnc = 0;
     wire [15:0] w_sw = 0;
-
-`ifdef ARTYA7
-    wire [15:0] w_led;
-    assign w_ledx = w_led[3:0];//w_insn_data[3:0];
-
-    reg [7:0] r_sg;
-    reg [7:0] r_an;
-`endif
 
     wire [15:0] w_led_t; // temporal w_led
 
@@ -153,27 +123,6 @@ module m_main#(
     wire        w_tlb_flush;
     wire        w_init_done;
     wire        w_init_stage;
-
-    // Clock
-
-/*
-    wire w_locked;
-`ifndef ARTYA7
-    wire mig_clk, RST_X2;
-    clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .locked(w_locked));
-`else
-    wire mig_clk, RST_X2, ref_clk;
-    `ifndef GENESYS2
-    //clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(mig_clk), .clk_out2(ref_clk), .clk_out3(), .locked(w_locked));
-    clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
-    `else
-    wire CLK;
-    IBUFDS ibufds_i(.O(CLK), .I(CLK_P), .IB(CLK_N));
-    clk_wiz_0 m_clkgen0 (.clk_in1(CLK),
-                         .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
-    `endif
-`endif
- */
 
     // Reset
     wire RST        = ~w_locked;
@@ -214,7 +163,11 @@ module m_main#(
         if(w_init_done && !r_stop && w_led_t[9:8] == 0) r_core_cnt <= r_core_cnt + 1;
     end
 
-    m_mmu c(
+    m_mmu#(.APP_ADDR_WIDTH(APP_ADDR_WIDTH),
+           .APP_CMD_WIDTH(APP_CMD_WIDTH),
+           .APP_DATA_WIDTH(APP_DATA_WIDTH),
+           .APP_MASK_WIDTH(APP_MASK_WIDTH))
+    c(
         .CLK            (CORE_CLK),
         .RST_X          (RST_X),
         .w_insn_addr    (w_insn_addr),
@@ -242,10 +195,8 @@ module m_main#(
         .w_txd          (w_txd),
         .w_rxd          (w_rxd),
         .w_init_done    (w_init_done),
-        // input clk, rst (active-low)
-        .mig_clk        (mig_clk),
-        .mig_rst_x      (w_locked),
 
+        // input clk, rst (active-low)
         .ui_clk(ui_clk),
 	.ui_rst(ui_rst),
 	.init_calib_complete(init_calib_complete),
@@ -292,9 +243,10 @@ module m_main#(
 	.s_axi_rvalid                   (s_axi_rvalid),
 	.s_axi_rready                   (s_axi_rready),
 
-        // output clk, rst (active-low)
-        .o_clk          (CORE_CLK),
-        .o_rst_x        (RST_X2),
+        // clk, rst (active-low)
+        .core_clk       (CORE_CLK),
+        .core_rst_x     (RST_X2),
+
         .w_uart_data    (w_uart_data),
         .w_uart_we      (w_uart_we),
         .w_led          (w_led_t),
