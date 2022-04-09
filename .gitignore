@@ -19,4 +19,4 @@ ucimage/main.elf
 ucimage/main.o
 ucimage/simrv.o
 ucimage/startup.o
-
+*.dcp
