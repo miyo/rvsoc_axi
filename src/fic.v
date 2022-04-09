@@ -282,7 +282,7 @@ module fic#(
 		     .c0_ddr4_s_axi_ctrl_rresp(c0_ddr4_s_axi_ctrl_rresp),      // output wire [1 : 0] c0_ddr4_s_axi_ctrl_rresp
 		     .c0_ddr4_interrupt(c0_ddr4_interrupt),                    // output wire c0_ddr4_interrupt
 		     .c0_ddr4_s_axi_awid(s_axi_awid),                  // input wire [7 : 0] c0_ddr4_s_axi_awid
-		     .c0_ddr4_s_axi_awaddr(s_axi_awaddr),              // input wire [33 : 0] c0_ddr4_s_axi_awaddr
+		     .c0_ddr4_s_axi_awaddr({6'b0, s_axi_awaddr}),              // input wire [33 : 0] c0_ddr4_s_axi_awaddr
 		     .c0_ddr4_s_axi_awlen(s_axi_awlen),                // input wire [7 : 0] c0_ddr4_s_axi_awlen
 		     .c0_ddr4_s_axi_awsize(s_axi_awsize),              // input wire [2 : 0] c0_ddr4_s_axi_awsize
 		     .c0_ddr4_s_axi_awburst(s_axi_awburst),            // input wire [1 : 0] c0_ddr4_s_axi_awburst
@@ -302,7 +302,7 @@ module fic#(
 		     .c0_ddr4_s_axi_bresp(s_axi_bresp),                // output wire [1 : 0] c0_ddr4_s_axi_bresp
 		     .c0_ddr4_s_axi_bvalid(s_axi_bvalid),              // output wire c0_ddr4_s_axi_bvalid
 		     .c0_ddr4_s_axi_arid(s_axi_arid),                  // input wire [7 : 0] c0_ddr4_s_axi_arid
-		     .c0_ddr4_s_axi_araddr(s_axi_araddr),              // input wire [33 : 0] c0_ddr4_s_axi_araddr
+		     .c0_ddr4_s_axi_araddr({6'b0, s_axi_araddr}),      // input wire [33 : 0] c0_ddr4_s_axi_araddr
 		     .c0_ddr4_s_axi_arlen(s_axi_arlen),                // input wire [7 : 0] c0_ddr4_s_axi_arlen
 		     .c0_ddr4_s_axi_arsize(s_axi_arsize),              // input wire [2 : 0] c0_ddr4_s_axi_arsize
 		     .c0_ddr4_s_axi_arburst(s_axi_arburst),            // input wire [1 : 0] c0_ddr4_s_axi_arburst

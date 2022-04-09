@@ -1,3 +1,22 @@
+set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_0_i/inst/mmcme3_adv_inst/CLKOUT0] \
+               -filter {IS_GENERATED && MASTER_CLOCK == sys_clk_pin}] \
+	       -to [get_clocks -of_objects [get_pins clk_wiz_0_i/inst/mmcme3_adv_inst/CLKOUT0] \
+	       -filter {IS_GENERATED && MASTER_CLOCK == FGCK_P}]
+set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_0_i/inst/mmcme3_adv_inst/CLKOUT0] \
+               -filter {IS_GENERATED && MASTER_CLOCK == FGCK_P}] \
+	       -to [get_clocks -of_objects [get_pins clk_wiz_0_i/inst/mmcme3_adv_inst/CLKOUT0] \
+	       -filter {IS_GENERATED && MASTER_CLOCK == sys_clk_pin}]
+set_false_path -from [get_clocks -of_objects [get_pins ddr4_0_i/inst/u_ddr4_infrastructure/gen_mmcme3.u_mmcme_adv_inst/CLKOUT0]] \
+               -to [get_clocks -of_objects [get_pins clkgen1/inst/mmcme3_adv_inst/CLKOUT0]]
+set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_0_i/inst/mmcme3_adv_inst/CLKOUT0] \
+               -filter {IS_GENERATED && MASTER_CLOCK == FGCK_P}] \
+	       -to [get_clocks -of_objects [get_pins ddr4_0_i/inst/u_ddr4_infrastructure/gen_mmcme3.u_mmcme_adv_inst/CLKOUT0]]
+set_false_path -from [get_clocks -of_objects [get_pins clk_wiz_0_i/inst/mmcme3_adv_inst/CLKOUT0] \
+               -filter {IS_GENERATED && MASTER_CLOCK == sys_clk_pin}] \
+	       -to [get_clocks -of_objects [get_pins ddr4_0_i/inst/u_ddr4_infrastructure/gen_mmcme3.u_mmcme_adv_inst/CLKOUT0]]
+set_false_path -from [get_clocks -of_objects [get_pins clkgen1/inst/mmcme3_adv_inst/CLKOUT0]] \
+               -to [get_clocks -of_objects [get_pins ddr4_0_i/inst/u_ddr4_infrastructure/gen_mmcme3.u_mmcme_adv_inst/CLKOUT0]]
+
 create_generated_clock -name mig_in_clk [get_pins m_clkgen0/inst/mmcm_adv_inst/CLKOUT0]
 set_clock_groups -asynchronous -group {mig_in_clk}
 
