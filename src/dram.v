@@ -79,8 +79,8 @@ module DRAM_con_witout_cache #(
      output wire s_axi_rready,
 
      // output clk, rst (active-low)
-     output wire                         o_clk,
-     output wire                         o_rst_x,
+     input wire                         clk,
+     input wire                         rst_x,
      // user interface ports
      (* mark_debug *) input  wire                         i_rd_en,
      (* mark_debug *) input  wire                         i_wr_en,
@@ -91,8 +91,8 @@ module DRAM_con_witout_cache #(
      output wire                         o_busy,
      input  wire [3:0]                   i_mask);
 
-    wire                        clk;
-    wire                        rst_x;
+//    wire                        clk;
+//    wire                        rst_x;
 
     wire                        dram_init_calib_complete;
     wire                        dram_ren;
@@ -135,7 +135,7 @@ module DRAM_con_witout_cache #(
     localparam STATE_IDLE  = 2'b01;
     localparam STATE_WRITE = 2'b10;
     localparam STATE_READ  = 2'b11;
-
+/*
     wire locked;
     wire rst_x_async;
     reg  rst_x_sync1;
@@ -162,7 +162,7 @@ module DRAM_con_witout_cache #(
 
     assign o_clk = clk;
     assign o_rst_x = rst_x;
-
+*/
     // synchronize the calibration status signal: MIG -> MIPS core
     always @(posedge clk) begin
         if (!rst_x) begin

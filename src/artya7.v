@@ -88,6 +88,38 @@ module artya7#(
 
     clk_wiz_0 m_clkgen0 (.clk_in1(CLK), .resetn(RST_X_IN), .clk_out1(), .clk_out2(ref_clk), .clk_out3(mig_clk), .locked(w_locked));
 
+    wire ui_gen_clk;
+    wire ui_gen_rst_x;
+    wire locked;
+    wire rst_x_async;
+    reg  rst_x_sync1;
+    reg  rst_x_sync2;
+    wire CORE_CLK;
+    wire RST_X2;
+
+    clk_wiz_1 clkgen1 (
+                       .clk_in1(ui_clk),
+                       .resetn(~ui_rst),
+                       .clk_out1(ui_gen_clk),
+                       .locked(locked));
+
+    assign rst_x_async = ~ui_rst & locked;
+    assign ui_gen_rst_x = rst_x_sync2;
+
+    always @(posedge ui_gen_clk or negedge rst_x_async) begin
+        if (!rst_x_async) begin
+            rst_x_sync1 <= 1'b0;
+            rst_x_sync2 <= 1'b0;
+        end else begin
+            rst_x_sync1 <= 1'b1;
+            rst_x_sync2 <= rst_x_sync1;
+        end
+    end
+
+    assign CORE_CLK = ui_gen_clk;
+    assign RST_X2 = ui_gen_rst_x;
+
+
     m_main#(.APP_ADDR_WIDTH(APP_ADDR_WIDTH),
             .APP_CMD_WIDTH(APP_CMD_WIDTH),
             .APP_DATA_WIDTH(APP_DATA_WIDTH),
@@ -109,6 +141,9 @@ module artya7#(
         .ui_clk(ui_clk),
 	.ui_rst(ui_rst),
 	.init_calib_complete(init_calib_complete),
+
+        .CORE_CLK(CORE_CLK),
+        .RST_X2(RST_X2),
 
 	.s_axi_awid                     (s_axi_awid),
 	.s_axi_awaddr                   (s_axi_awaddr),
@@ -151,23 +186,7 @@ module artya7#(
 	.s_axi_rlast                    (s_axi_rlast),
 	.s_axi_rvalid                   (s_axi_rvalid),
 	.s_axi_rready                   (s_axi_rready)
-/*
-             .ddr3_dq(ddr3_dq),
-             .ddr3_dqs_n(ddr3_dqs_n),
-             .ddr3_dqs_p(ddr3_dqs_p),
-             .ddr3_addr(ddr3_addr),
-             .ddr3_ba(ddr3_ba),
-             .ddr3_ras_n(ddr3_ras_n),
-             .ddr3_cas_n(ddr3_cas_n),
-             .ddr3_we_n(ddr3_we_n),
-             .ddr3_ck_p(ddr3_ck_p),
-             .ddr3_ck_n(ddr3_ck_n),
-             .ddr3_reset_n(ddr3_reset_n),
-             .ddr3_cke(ddr3_cke),
-             .ddr3_cs_n(ddr3_cs_n),
-             .ddr3_dm(ddr3_dm),
-             .ddr3_odt(ddr3_odt)
- */
+
              );
 
   mig_7series_0_axi u_mig_7series_0_axi (
@@ -254,3 +273,4 @@ module artya7#(
 
 endmodule // artya7
 
+`default_nettype wire

@@ -96,8 +96,8 @@ module m_mmu#(
      input wire s_axi_rvalid,
      output wire s_axi_rready,
 
-    output wire         o_clk,
-    output wire         o_rst_x,
+    input wire         o_clk,
+    input wire         o_rst_x,
     output wire  [7:0]  w_uart_data,
     output wire         w_uart_we,
     output wire [15:0]  w_led,

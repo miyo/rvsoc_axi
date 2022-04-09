@@ -56,6 +56,9 @@ module m_main#(
      input wire ui_rst,
      input wire init_calib_complete,
 
+     input wire CORE_CLK,
+     input wire RST_X2,
+
      output wire [3:0] s_axi_awid,
      output wire [APP_ADDR_WIDTH-1:0] s_axi_awaddr,
      output wire [7:0] s_axi_awlen,
@@ -152,8 +155,6 @@ module m_main#(
     wire        w_init_stage;
 
     // Clock
-    wire CORE_CLK;
-    wire RST_X2;
 
 /*
     wire w_locked;
@@ -335,7 +336,6 @@ module m_main#(
         .w_core_odata   (w_core_odata),
         .w_init_stage   (w_init_stage)
     );
-
 
 /*********** Chika Chika **************************/
     reg  r_led1_B=0,r_led1_G=0,r_led1_R=0;

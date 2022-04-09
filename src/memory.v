@@ -82,8 +82,8 @@ module DRAM_conRV#(
      output wire s_axi_rready,
 
      // output clk, rst (active-low)
-     output wire                         o_clk,
-     output wire                         o_rst_x,
+     input wire                         o_clk,
+     input wire                         o_rst_x,
      // user interface ports
      (* mark_debug *) input  wire                         i_rd_en,
      (* mark_debug *) input  wire                         i_wr_en,
@@ -273,8 +273,8 @@ module DRAM_conX#(
      output wire s_axi_rready,
 
      // output clk, rst (active-low)
-     output wire                         o_clk,
-     output wire                         o_rst_x,
+     input wire                         o_clk,
+     input wire                         o_rst_x,
      // user interface ports
      input  wire                         i_rd_en,
      (* mark_debug *) input  wire                         i_wr_en,
@@ -473,8 +473,8 @@ module DRAM_Wrapper2 #(
      output wire s_axi_rready,
 
      // output clk, rst (active-low)
-     output wire                         o_clk,
-     output wire                         o_rst_x,
+     input wire                         o_clk,
+     input wire                         o_rst_x,
      // user interface ports
      input  wire                         i_rd_en,
      input  wire                         i_wr_en,
@@ -575,8 +575,8 @@ module DRAM_Wrapper2 #(
 	.s_axi_rready                   (s_axi_rready),
 
                // output clk, rst (active-low)
-               .o_clk(o_clk),
-               .o_rst_x(o_rst_x),
+               .clk(o_clk),
+               .rst_x(o_rst_x),
                // user interface ports
                .i_rd_en(r_le),
                .i_wr_en(r_we),
