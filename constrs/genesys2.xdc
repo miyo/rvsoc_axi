@@ -22,6 +22,14 @@ create_clock -period 9.615 -name mmu_clk_net -add [get_nets c/CLK]
 #set_false_path -from [get_clocks core_clk_net] -to [get_clocks -of_objects [get_pins c/dram_con/dram/dram/dram_con_witout_cache/dc/u_mig_7series_0_axi/u_mig_7series_0_axi_mig/u_ddr3_infrastructure/gen_mmcm.mmcm_i/CLKFBOUT]]
 #set_false_path -from [get_clocks -of_objects [get_pins c/dram_con/dram/dram/dram_con_witout_cache/dc/u_mig_7series_0_axi/u_mig_7series_0_axi_mig/u_ddr3_infrastructure/gen_mmcm.mmcm_i/CLKFBOUT]] -to [get_clocks core_clk_net]
 
+create_generated_clock -name mig_in_clk [get_pins m_clkgen0/inst/mmcm_adv_inst/CLKOUT0]
+set_clock_groups -asynchronous -group {mig_in_clk}
+
+#create_generated_clock -name core_clk [get_pins mem_ctrl/dram_con/dram/dram/dram_con_witout_cache/clkgen1/inst/mmcm_adv_inst/CLKOUT0]
+create_generated_clock -name core_clk [get_pins clkgen1/inst/mmcm_adv_inst/CLKOUT0]
+set_clock_groups -asynchronous -group {core_clk}
+
+
 set_property -dict { PACKAGE_PIN V27   IOSTANDARD LVCMOS33 } [get_ports { core_clk_div2_out }]; #IO_L16N_T2_A15_D31_14 Sch=jd[1]
 
 #### This file is a general .xdc for the Genesys 2 Rev. H
