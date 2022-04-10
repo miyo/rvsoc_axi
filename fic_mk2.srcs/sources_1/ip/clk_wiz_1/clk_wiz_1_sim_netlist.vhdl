@@ -1,10 +1,10 @@
 -- Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2020.1 (lin64) Build 2902540 Wed May 27 19:54:35 MDT 2020
--- Date        : Sat Apr  9 20:07:25 2022
+-- Date        : Sat Apr  9 20:07:22 2022
 -- Host        : qdev running 64-bit Ubuntu 18.04.6 LTS
--- Command     : write_vhdl -force -mode funcsim
---               /import/home/miyo/FiC/rvsoc_axi/fic_mk2.srcs/sources_1/ip/clk_wiz_1/clk_wiz_1_sim_netlist.vhdl
+-- Command     : write_vhdl -force -mode funcsim -rename_top clk_wiz_1 -prefix
+--               clk_wiz_1_ clk_wiz_1_sim_netlist.vhdl
 -- Design      : clk_wiz_1
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.
@@ -21,8 +21,6 @@ entity clk_wiz_1_clk_wiz_1_clk_wiz is
     locked : out STD_LOGIC;
     clk_in1 : in STD_LOGIC
   );
-  attribute ORIG_REF_NAME : string;
-  attribute ORIG_REF_NAME of clk_wiz_1_clk_wiz_1_clk_wiz : entity is "clk_wiz_1_clk_wiz";
 end clk_wiz_1_clk_wiz_1_clk_wiz;
 
 architecture STRUCTURE of clk_wiz_1_clk_wiz_1_clk_wiz is

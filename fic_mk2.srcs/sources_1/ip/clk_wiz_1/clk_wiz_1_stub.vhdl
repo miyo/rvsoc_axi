@@ -1,10 +1,10 @@
 -- Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2020.1 (lin64) Build 2902540 Wed May 27 19:54:35 MDT 2020
--- Date        : Sat Apr  9 20:07:24 2022
+-- Date        : Sat Apr  9 20:07:22 2022
 -- Host        : qdev running 64-bit Ubuntu 18.04.6 LTS
--- Command     : write_vhdl -force -mode synth_stub
---               /import/home/miyo/FiC/rvsoc_axi/fic_mk2.srcs/sources_1/ip/clk_wiz_1/clk_wiz_1_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub -rename_top clk_wiz_1 -prefix
+--               clk_wiz_1_ clk_wiz_1_stub.vhdl
 -- Design      : clk_wiz_1
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xcku115-flvb2104-2-e

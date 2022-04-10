@@ -1,7 +1,7 @@
 // Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
 // --------------------------------------------------------------------------------
 // Tool Version: Vivado v.2020.1 (lin64) Build 2902540 Wed May 27 19:54:35 MDT 2020
-// Date        : Sat Apr  9 20:17:32 2022
+// Date        : Sat Apr  9 21:56:31 2022
 // Host        : qdev running 64-bit Ubuntu 18.04.6 LTS
 // Command     : write_verilog -force -mode synth_stub
 //               /import/home/miyo/FiC/rvsoc_axi/fic_mk2.srcs/sources_1/ip/ddr4_0/ddr4_0_stub.v

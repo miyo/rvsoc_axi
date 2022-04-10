@@ -108,7 +108,7 @@
   PhyIP_PhyClockRatio = "4:1",
   PhyIP_ECC = "true",
   PhyIP_CasLatency = 11,
-  PhyIP_CasWriteLatency = 11,
+  PhyIP_CasWriteLatency = 9,
   PhyIP_DataWidth = 72,
   PhyIP_ChipSelect = "true",
   PhyIP_Slot = "Single",
@@ -193,7 +193,7 @@
     parameter         tCK                     = 1250,  // Memory clock period (DDR4 clock cycle)
 
     parameter         tFAW                    = 20,//In DDR4 clock cycles
-    parameter         tRTW                    = 8, // CL + (BL/2) - CWL + 4tCK In DDR4 clock cycles
+    parameter         tRTW                    = 10, // CL + (BL/2) - CWL + 4tCK In DDR4 clock cycles
     parameter         tWTR_L                  = 6, //In DDR4 clock cycles
     parameter         tWTR_S                  = 2, //In DDR4 clock cycles
     parameter         tRFC                    = 280, //In DDR4 clock cycles
@@ -209,7 +209,7 @@
 
     parameter         tWR                     = 12, //In DDR4 clock cycles
     parameter         PER_RD_INTVL            = 32'd200,
-    parameter         ODTWRDEL                = 5'd11,
+    parameter         ODTWRDEL                = 5'd9,
     parameter         ODTWRDUR                = 4'd6,
     parameter         ODTWRODEL               = 5'd9,
     parameter         ODTWRODUR               = 4'd6,
@@ -359,7 +359,7 @@
 
 
 
-    parameter         MR2                       = 13'b0000000010000,
+    parameter         MR2                       = 13'b0000000000000,
     parameter         MR3                       = 13'b0000000000000,
     parameter         MR4                       = 13'b0000000000000,
 

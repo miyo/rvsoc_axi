@@ -24,15 +24,17 @@
 # create_generated_clock -name core_clk [get_pins clkgen1/inst/mmcm_adv_inst/CLKOUT0]
 #
 
-create_generated_clock -name mig_in_clk [get_pins m_clkgen0/inst/mmcm_adv_inst/CLKOUT0]
+create_generated_clock -name mig_in_clk [get_pins clk_wiz_0_i/inst/mmcme3_adv_inst/CLKOUT0]
+create_generated_clock -name core_clk [get_pins clkgen1/inst/mmcme3_adv_inst/CLKOUT0]
+create_generated_clock -name ddr4_clk [get_pins ddr4_0_i/inst/u_ddr4_infrastructure/gen_mmcme3.u_mmcme_adv_inst/CLKOUT0]
+
 set_clock_groups -asynchronous -group {mig_in_clk}
-create_generated_clock -name core_clk [get_pins clkgen1/inst/mmcm_adv_inst/CLKOUT0]
 set_clock_groups -asynchronous -group {core_clk}
+set_clock_groups -asynchronous -group {ddr4_clk}
 
 set_property -dict {PACKAGE_PIN AV27 IOSTANDARD SUB_LVDS DIFF_TERM_ADV TERM_100} [get_ports FGCK_P]
 set_property -dict {PACKAGE_PIN AV28 IOSTANDARD SUB_LVDS DIFF_TERM_ADV TERM_100} [get_ports FGCK_N]
-
-create_clock -period 100.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports FGCK_P]
+create_clock -period 100.000 [get_ports FGCK_P]
 
 set_property -dict {PACKAGE_PIN AN24 IOSTANDARD LVCMOS33} [get_ports led0]
 set_property -dict {PACKAGE_PIN AP23 IOSTANDARD LVCMOS33} [get_ports led1]

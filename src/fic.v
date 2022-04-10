@@ -298,7 +298,7 @@ module fic#(
 		     .c0_ddr4_s_axi_wvalid(s_axi_wvalid),              // input wire c0_ddr4_s_axi_wvalid
 		     .c0_ddr4_s_axi_wready(s_axi_wready),              // output wire c0_ddr4_s_axi_wready
 		     .c0_ddr4_s_axi_bready(s_axi_bready),              // input wire c0_ddr4_s_axi_bready
-		     .c0_ddr4_s_axi_bid(s_axi_bid),                    // output wire [7 : 0] c0_ddr4_s_axi_bid
+		     .c0_ddr4_s_axi_bid({4'b0, s_axi_bid}),            // output wire [7 : 0] c0_ddr4_s_axi_bid
 		     .c0_ddr4_s_axi_bresp(s_axi_bresp),                // output wire [1 : 0] c0_ddr4_s_axi_bresp
 		     .c0_ddr4_s_axi_bvalid(s_axi_bvalid),              // output wire c0_ddr4_s_axi_bvalid
 		     .c0_ddr4_s_axi_arid(s_axi_arid),                  // input wire [7 : 0] c0_ddr4_s_axi_arid
@@ -316,9 +316,9 @@ module fic#(
 		     .c0_ddr4_s_axi_rlast(s_axi_rlast),                // output wire c0_ddr4_s_axi_rlast
 		     .c0_ddr4_s_axi_rvalid(s_axi_rvalid),              // output wire c0_ddr4_s_axi_rvalid
 		     .c0_ddr4_s_axi_rresp(s_axi_rresp),                // output wire [1 : 0] c0_ddr4_s_axi_rresp
-		     .c0_ddr4_s_axi_rid(s_axi_rid),                    // output wire [7 : 0] c0_ddr4_s_axi_rid
+		     .c0_ddr4_s_axi_rid({4'b0, s_axi_rid}),            // output wire [7 : 0] c0_ddr4_s_axi_rid
 		     .c0_ddr4_s_axi_rdata(s_axi_rdata),                // output wire [127 : 0] c0_ddr4_s_axi_rdata
-		     .sys_rst(sys_rst)                                        // input wire sys_rst
+		     .sys_rst(sys_rst)                                 // input wire sys_rst
 		     );
 
     assign c0_ddr4_aresetn = ~reset;
