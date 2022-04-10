@@ -95,12 +95,6 @@ module m_main#(
     reg        r_time_led=0;
     always@(posedge CORE_CLK) r_cnt <= (r_cnt>=(64*1000000/2-1)) ? 0 : r_cnt+1;
     always@(posedge CORE_CLK) r_time_led <= (r_cnt==0) ? !r_time_led : r_time_led;
-
-    assign w_led[0] = r_time_led;
-    assign w_led[1] = w_init_done;
-    assign w_led[2] = w_data_we;
-    assign w_led[3] = w_busy;
-    assign w_led[15:4] = 0;
     
     /*******************************************************************************/
     reg         r_stop = 0;
@@ -124,10 +118,21 @@ module m_main#(
     wire        w_init_done;
     wire        w_init_stage;
 
+    assign w_led[0] = r_time_led;
+    assign w_led[1] = w_init_done;
+    assign w_led[2] = w_data_we;
+    assign w_led[3] = w_busy;
+    assign w_led[15:4] = 0;
+
     // Reset
     wire RST        = ~w_locked;
     wire RST_X      = ~RST & RST_X2;
     wire CORE_RST_X = RST_X & w_init_done;
+
+    // Uart
+    wire  [7:0] w_uart_data;
+    wire        w_uart_we;
+    wire [31:0] w_checksum;
 
     // 7seg
     wire [31:0] w_core_odata;
@@ -148,11 +153,6 @@ module m_main#(
         r_sg <= w_sg;
         r_an <= w_an;
     end
-
-    // Uart
-    wire  [7:0] w_uart_data;
-    wire        w_uart_we;
-    wire [31:0] w_checksum;
 
     wire w_finish;
     wire w_halt;

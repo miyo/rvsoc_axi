@@ -438,6 +438,13 @@ module DRAM_Wrapper2 #(
      input  wire [3:0]                   i_mask);
 
     /***** store output data to registers in posedge clock cycle *****/
+    reg  [3:0]  r_mask  = 0;
+    reg  [31:0] r_iaddr = 0;
+    wire [127:0]w_ctrl_data;
+
+    reg  [31:0] r_wdata = 0;
+    reg         r_le = 0;
+    reg         r_we = 0;
 
     wire [127:0]w_o_data;
     wire        w_o_busy;
@@ -453,14 +460,6 @@ module DRAM_Wrapper2 #(
     assign o_busy = r_o_busy || r_le || r_we;
 
     /***** select load data by i_ctrl *****/
-
-    reg  [3:0]  r_mask  = 0;
-    reg  [31:0] r_iaddr = 0;
-    wire [127:0]w_ctrl_data;
-
-    reg  [31:0] r_wdata = 0;
-    reg         r_le = 0;
-    reg         r_we = 0;
 
     always @(posedge core_clk) begin
         //if(i_rd_en) begin

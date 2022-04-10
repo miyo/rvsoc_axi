@@ -14,11 +14,11 @@ set_property -dict { PACKAGE_PIN A9  IOSTANDARD LVCMOS33} [get_ports { w_rxd }];
 # set_property -dict { PACKAGE_PIN A9  IOSTANDARD LVCMOS33} [get_ports { w_txd }];
 # set_property -dict { PACKAGE_PIN D10  IOSTANDARD LVCMOS33} [get_ports { w_rxd }];
 ###############################################################################################
-create_generated_clock -name mig_in_clk [get_pins m_clkgen0/inst/mmcm_adv_inst/CLKOUT0]
+create_generated_clock -name mig_in_clk [get_pins m_clkgen0/clk_out3]
 set_clock_groups -asynchronous -group {mig_in_clk}
 
 #create_generated_clock -name core_clk [get_pins mem_ctrl/dram_con/dram/dram/dram_con_witout_cache/clkgen1/inst/mmcm_adv_inst/CLKOUT0]
-create_generated_clock -name core_clk [get_pins clkgen1/inst/mmcm_adv_inst/CLKOUT0]
+create_generated_clock -name core_clk [get_pins clkgen1/clk_out1]
 set_clock_groups -asynchronous -group {core_clk}
 set_property -dict { PACKAGE_PIN G13 IOSTANDARD LVCMOS33} [get_ports { core_clk_div2_out }];
 
@@ -91,4 +91,4 @@ set_property -dict { PACKAGE_PIN N5 IOSTANDARD SSTL135 } [get_ports { ddr3_cke[0
 set_property -dict { PACKAGE_PIN R5 IOSTANDARD SSTL135 } [get_ports { ddr3_odt[0] }];
 set_property -dict { PACKAGE_PIN U8 IOSTANDARD SSTL135 } [get_ports { ddr3_cs_n[0] }];
 
-set_property -dict { PACKAGE_PIN D9    IOSTANDARD LVCMOS33 } [get_ports { sf }];
+#set_property -dict { PACKAGE_PIN D9    IOSTANDARD LVCMOS33 } [get_ports { sf }];
